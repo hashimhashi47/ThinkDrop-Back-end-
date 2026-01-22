@@ -1,0 +1,53 @@
+package constants
+
+// role
+const (
+	User  = "user"
+	Admin = "admin"
+)
+
+const (
+	Sucess = "Sucess"
+	Error  = "Error"
+)
+
+var (
+	SUCESS               = 200
+	BADREQUEST           = 400
+	UNAUTHORIZED         = 401
+	FORBIDDEN            = 403
+	NOTFOUND             = 404
+	METHODNOTALLOWED     = 405
+	INTERNALSERVERERROR  = 500
+	NOTIMPLEMENTED       = 501
+	BADGATEWAY           = 502
+	SERVICEUNAVAILABLE   = 503
+	GATEWAYTIMEOUT       = 504
+	UNSUPPORTEDMEDIATYPE = 415
+	UNPROCESSABLEENTITY  = 422
+
+	UNAVAILABLE    = "UNAVAILABLE"
+	PENDING        = "PENDING"
+	COMPLETED      = "COMPLETED"
+	APPROVED       = "APPROVED"
+	ASSIGNEDSLOT   = "ASSIGNEDSLOT"
+	ACCEPTED       = "ACCEPTED"
+	REJECTED       = "REJECTED"
+	SERVICESTARTED = "SERVICE STARTED"
+	SERVICEENDED   = "SERVICE ENDED"
+	DELIVERED      = "DELIVERED"
+	WAITING        = "WAITING"
+
+	// New page constants
+	PLAN_PAGE     = "PLAN_PAGE"
+	INVOICE_PAGE  = "INVOICE_PAGE"
+	CHECKOUT_PAGE = "CHECKOUT_PAGE"
+	PLAN_STATIC   = 7
+
+	// preload
+	PRELOADUSER     = "Users"
+	PRELOADSTAFF    = "Staff"
+	PRELOADSLOT     = "Slot"
+	PRELOADBOOKINGS = "Bookings"
+	PRELOADBOOKED   = "Bookeds"
+)
