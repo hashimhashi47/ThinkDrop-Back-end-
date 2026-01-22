@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// → App entry point (starts server, loads config)
+// → App entry point (starts server)
 func main() {
 	app := fiber.New()
 	router.UserRoutes(app)
