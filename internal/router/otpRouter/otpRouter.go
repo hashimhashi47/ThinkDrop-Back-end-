@@ -8,4 +8,5 @@ import (
 
 func OTPRouter(app *fiber.App, OTPController *otpcontrollers.OtpControllers) {
 	app.Post("/auth/send-otp", OTPController.SentOtp)
+	app.Post("/auth/verify-otp", OTPController.VerfiyOtp)
 }

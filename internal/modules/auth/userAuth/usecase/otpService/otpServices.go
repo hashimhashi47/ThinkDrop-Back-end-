@@ -17,15 +17,6 @@ func NewOtpServices(r otprepo.OTPrepo) *OtpService {
 
 // -> OTP generate busniess logics
 func (r *OtpService) SentOtpService(email string) (OTP string, err error) {
-	RandOTP := genrateotp.GenerateOTP()
-
-	if err := utils.SentOTPEmail(email, RandOTP); err != nil {
-		return "", err
-	}
-
-	if err := r.repo.SaveOTP(email, RandOTP); err != nil {
-		return "", errors.Join(errors.New("failed to save the OTP"), err)
-	}
 
 	isOk, err := r.repo.RateLimitOTP(email)
 
@@ -37,5 +28,31 @@ func (r *OtpService) SentOtpService(email string) (OTP string, err error) {
 		return "", errors.New("Request limit exceeded, wait for 10 min")
 	}
 
+	RandOTP := genrateotp.GenerateOTP()
+
+	if err := utils.SentOTPEmail(email, RandOTP); err != nil {
+		return "", err
+	}
+
+	if err := r.repo.SaveOTP(email, RandOTP); err != nil {
+		return "", errors.Join(errors.New("failed to save the OTP"), err)
+	}
+
 	return RandOTP, nil
+}
+
+// ->Verify the email logic
+func (r *OtpService) OTPverifyService(email, OTP string) error {
+	storedOtp, err := r.repo.GetOTP(email)
+
+	if err != nil {
+		return errors.Join(errors.New("OTP mismatched"), err)
+	}
+
+	if storedOtp != OTP {
+		return errors.New("invalid otp")
+	}
+
+	r.repo.DeleteOTP(email)
+	return nil
 }

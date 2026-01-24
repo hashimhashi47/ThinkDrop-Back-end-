@@ -12,11 +12,12 @@ const (
 )
 
 var (
-	SUCESSCODE               = 200
+	SUCESSCODE           = 200
 	BADREQUEST           = 400
 	UNAUTHORIZED         = 401
 	FORBIDDEN            = 403
 	NOTFOUND             = 404
+	TOOMANYREQUESTS      = 429
 	METHODNOTALLOWED     = 405
 	INTERNALSERVERERROR  = 500
 	NOTIMPLEMENTED       = 501
