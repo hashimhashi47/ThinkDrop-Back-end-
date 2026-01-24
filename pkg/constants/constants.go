@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	SUCESS               = 200
+	SUCESSCODE               = 200
 	BADREQUEST           = 400
 	UNAUTHORIZED         = 401
 	FORBIDDEN            = 403

@@ -9,8 +9,6 @@ import (
 	"os"
 )
 
-
-
 var DB *gorm.DB
 
 // -> Make gorm connection with GORM to database

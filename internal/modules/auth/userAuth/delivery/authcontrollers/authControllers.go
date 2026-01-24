@@ -1,22 +1,23 @@
-package delivery
+package authcontrollers
 
 import (
 	"net/http"
 	"thinkdrop-backend/internal/modules/auth/userAuth/domain/entity"
-	"thinkdrop-backend/internal/modules/auth/userAuth/usecase"
+	authservice "thinkdrop-backend/internal/modules/auth/userAuth/usecase/authService"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
 	"thinkdrop-backend/pkg/validate"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 //→ Controllers (HTTP handlers)
 
 type UserController struct {
-	services *usecase.UserServices
+	services *authservice.UserServices
 }
 
-func NewUserController(s *usecase.UserServices) *UserController {
+func NewUserController(s *authservice.UserServices) *UserController {
 	return &UserController{services: s}
 }
 
@@ -47,5 +48,6 @@ func (s *UserController) UserSignup(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse(data),
 	})
-
 }
+
+

@@ -1,7 +1,7 @@
-package repository
+package databaserepository
 
 import (
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain/repository"
+	"thinkdrop-backend/internal/modules/auth/userAuth/domain/repository/authRepository"
 
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ type PostgresRepo struct {
 	DB *gorm.DB
 }
 
-func NewPostgresAuthRepo(db *gorm.DB) repository.AuthRespository {
+func NewPostgresAuthRepo(db *gorm.DB) authrepository.AuthRespository {
 	return &PostgresRepo{DB: db}
 }
 

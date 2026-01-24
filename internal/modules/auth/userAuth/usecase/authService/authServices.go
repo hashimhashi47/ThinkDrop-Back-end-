@@ -1,19 +1,19 @@
-package usecase
+package authservice
 
 import (
 	"errors"
 	"thinkdrop-backend/internal/modules/auth/userAuth/domain/entity"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain/repository"
-	hashpass "thinkdrop-backend/pkg/hashPass"
+	"thinkdrop-backend/internal/modules/auth/userAuth/domain/repository/authRepository"
+	"thinkdrop-backend/pkg/hashPass"
 )
 
 // → Auth business rules (services)
 
 type UserServices struct {
-	repo repository.AuthRespository
+	repo authrepository.AuthRespository
 }
 
-func NewUserService(r repository.AuthRespository) *UserServices {
+func NewUserService(r authrepository.AuthRespository) *UserServices {
 	return &UserServices{repo: r}
 }
 
@@ -31,7 +31,7 @@ func (r *UserServices) UserLoginService(userDetails *entity.UserValidate) (user 
 		Email:         userDetails.Email,
 		Password:      hashedPass,
 	}
-	
+
 	if err := r.repo.Insert(User); err != nil {
 		return nil, errors.New("Signup failed")
 	}
