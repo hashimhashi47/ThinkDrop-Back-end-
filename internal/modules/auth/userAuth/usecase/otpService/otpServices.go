@@ -41,7 +41,7 @@ func (r *OtpService) SentOtpService(email string) (OTP string, err error) {
 	return RandOTP, nil
 }
 
-// ->Verify the email logic
+// -> Verify the email logic
 func (r *OtpService) OTPverifyService(email, OTP string) error {
 	storedOtp, err := r.repo.GetOTP(email)
 

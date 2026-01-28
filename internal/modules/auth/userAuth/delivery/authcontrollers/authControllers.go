@@ -7,6 +7,7 @@ import (
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
 	"thinkdrop-backend/pkg/validate"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +22,7 @@ func NewUserController(s *authservice.UserServices) *UserController {
 	return &UserController{services: s}
 }
 
-// ->User Signup binding and sent to controllers
+// -> User Signup with bindings and sent to services
 func (s *UserController) UserSignup(c *fiber.Ctx) error {
 	var uservalidate entity.UserValidate
 
@@ -37,7 +38,7 @@ func (s *UserController) UserSignup(c *fiber.Ctx) error {
 		})
 	}
 
-	data, err := s.services.UserLoginService(&uservalidate)
+	data, err := s.services.UserSignupService(&uservalidate)
 
 	if err != nil {
 		c.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -50,4 +51,57 @@ func (s *UserController) UserSignup(c *fiber.Ctx) error {
 	})
 }
 
+// -> User Login with bindings and sent to services
+func (s *UserController) UserLogin(c *fiber.Ctx) error {
+	var validateLogin entity.Login
 
+	if err := c.BodyParser(&validateLogin); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := validator.Validate.Struct(validateLogin); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	Data, AccessToken, RefershToken, err := s.services.UserLoginService(&validateLogin)
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "Access_token",
+		Value:    AccessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(15 * time.Minute),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: fiber.CookieSameSiteStrictMode,
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "Refersh_token",
+		Value:    RefershToken,
+		Path:     "/",
+		Expires:  time.Now().Add(7 * 24 * time.Hour),
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: fiber.CookieSameSiteStrictMode,
+	})
+
+	Result := map[string]string{
+		"Email":       Data.Email,
+		"Name":        Data.FullName,
+		"AccessToken": AccessToken,
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(Result),
+	})
+}
