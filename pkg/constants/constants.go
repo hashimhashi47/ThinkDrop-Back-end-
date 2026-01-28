@@ -1,5 +1,7 @@
 package constants
 
+import "errors"
+
 // role
 const (
 	User  = "user"
@@ -51,4 +53,9 @@ var (
 	PRELOADSLOT     = "Slot"
 	PRELOADBOOKINGS = "Bookings"
 	PRELOADBOOKED   = "Bookeds"
+
+	//errors
+	ErrTokenNotFound = errors.New("token not found")
+	ErrTokenExpired  = errors.New("token expired")
+	ErrTokenMismatch = errors.New("token mismatch")
 )

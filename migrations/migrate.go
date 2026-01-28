@@ -3,7 +3,8 @@ package migrations
 import (
 	"fmt"
 	"log"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	AuthDomain "thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	InterstDomain "thinkdrop-backend/internal/modules/interest/domain"
 
 	"gorm.io/gorm"
 )
@@ -11,7 +12,9 @@ import (
 // -> enitre migrations happens here
 func Migrations(db *gorm.DB) {
 	err := db.AutoMigrate(
-		domain.User{},
+		AuthDomain.User{},
+		InterstDomain.MainInterest{},
+		InterstDomain.SubInterest{},
 	)
 	if err != nil {
 		log.Fatal("Migration error", err)
