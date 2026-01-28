@@ -1,22 +1,14 @@
-package otpservice
+package usecase
 
 import (
 	"errors"
-	otprepo "thinkdrop-backend/internal/modules/auth/userAuth/domain/repository/otpRepo"
 	"thinkdrop-backend/internal/utils"
 	genrateotp "thinkdrop-backend/pkg/genrateOTP"
 )
 
-type OtpService struct {
-	repo otprepo.OTPrepo
-}
-
-func NewOtpServices(r otprepo.OTPrepo) *OtpService {
-	return &OtpService{repo: r}
-}
 
 // -> OTP generate busniess logics
-func (r *OtpService) SentOtpService(email string) (OTP string, err error) {
+func (r *AuthService) SentOtpService(email string) (OTP string, err error) {
 
 	isOk, err := r.repo.RateLimitOTP(email)
 
@@ -42,7 +34,7 @@ func (r *OtpService) SentOtpService(email string) (OTP string, err error) {
 }
 
 // -> Verify the email logic
-func (r *OtpService) OTPverifyService(email, OTP string) error {
+func (r *AuthService) OTPverifyService(email, OTP string) error {
 	storedOtp, err := r.repo.GetOTP(email)
 
 	if err != nil {

@@ -1,12 +1,12 @@
-package authcontrollers
+package delivery
 
 import (
 	"net/http"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain/entity"
-	authservice "thinkdrop-backend/internal/modules/auth/userAuth/usecase/authService"
+	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	"thinkdrop-backend/internal/modules/auth/userAuth/usecase"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
-	"thinkdrop-backend/pkg/validate"
+	validator "thinkdrop-backend/pkg/validate"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,17 +14,17 @@ import (
 
 //→ Controllers (HTTP handlers)
 
-type UserController struct {
-	services *authservice.UserServices
+type AuthControllers struct {
+	services *usecase.AuthService
 }
 
-func NewUserController(s *authservice.UserServices) *UserController {
-	return &UserController{services: s}
+func NewUserController(s *usecase.AuthService) *AuthControllers {
+	return &AuthControllers{services: s}
 }
 
 // -> User Signup with bindings and sent to services
-func (s *UserController) UserSignup(c *fiber.Ctx) error {
-	var uservalidate entity.UserValidate
+func (s *AuthControllers) UserSignup(c *fiber.Ctx) error {
+	var uservalidate domain.UserValidate
 
 	if err := c.BodyParser(&uservalidate); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -52,8 +52,8 @@ func (s *UserController) UserSignup(c *fiber.Ctx) error {
 }
 
 // -> User Login with bindings and sent to services
-func (s *UserController) UserLogin(c *fiber.Ctx) error {
-	var validateLogin entity.Login
+func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
+	var validateLogin domain.Login
 
 	if err := c.BodyParser(&validateLogin); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{

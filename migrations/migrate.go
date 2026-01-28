@@ -3,7 +3,7 @@ package migrations
 import (
 	"fmt"
 	"log"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain/entity"
+	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
 
 	"gorm.io/gorm"
 )
@@ -11,7 +11,7 @@ import (
 // -> enitre migrations happens here
 func Migrations(db *gorm.DB) {
 	err := db.AutoMigrate(
-		entity.User{},
+		domain.User{},
 	)
 	if err != nil {
 		log.Fatal("Migration error", err)

@@ -1,26 +1,16 @@
-package otpcontrollers
+package delivery
 
 import (
 	"errors"
 	"net/http"
-	"thinkdrop-backend/internal/modules/auth/userAuth/usecase/otpService"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
 	validator "thinkdrop-backend/pkg/validate"
-
 	"github.com/gofiber/fiber/v2"
 )
 
-type OtpControllers struct {
-	service *otpservice.OtpService
-}
-
-func NewOtpServices(s *otpservice.OtpService) *OtpControllers {
-	return &OtpControllers{service: s}
-}
-
 // ->sent OTP Controller
-func (s *OtpControllers) SentOtp(c *fiber.Ctx) error {
+func (s *AuthControllers) SentOtp(c *fiber.Ctx) error {
 	var OtpEmail struct {
 		Email string `json:"email" validate:"required,email"`
 	}
@@ -37,7 +27,7 @@ func (s *OtpControllers) SentOtp(c *fiber.Ctx) error {
 		})
 	}
 
-	OTP, err := s.service.SentOtpService(OtpEmail.Email)
+	OTP, err := s.services.SentOtpService(OtpEmail.Email)
 
 	if errors.Is(err, errors.New("Request limit exceeded, wait for 10 min")) {
 		return c.Status(http.StatusTooManyRequests).JSON(fiber.Map{
@@ -58,7 +48,7 @@ func (s *OtpControllers) SentOtp(c *fiber.Ctx) error {
 
 // -> Verify the OTP is valid or Not
 
-func (s *OtpControllers) VerfiyOtp(c *fiber.Ctx) error {
+func (s *AuthControllers) VerfiyOtp(c *fiber.Ctx) error {
 	var VerifyOtp struct {
 		Email string `json:"email" validate:"required,email"`
 		Otp   string `json:"otp" validate:"required,len=6,numeric"`
@@ -76,7 +66,7 @@ func (s *OtpControllers) VerfiyOtp(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := s.service.OTPverifyService(VerifyOtp.Email, VerifyOtp.Otp); err != nil {
+	if err := s.services.OTPverifyService(VerifyOtp.Email, VerifyOtp.Otp); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
 		})

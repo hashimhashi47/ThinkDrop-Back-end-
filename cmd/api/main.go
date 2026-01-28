@@ -27,7 +27,6 @@ func main() {
 
 	//-> the autentication initing happens here
 	controllers := bootstrap.InitAuth(db, Redis)
-	OtpControllers := bootstrap.InitOTP(Redis)
 
 	//->fibre engine
 	app := fiber.New()
@@ -35,7 +34,7 @@ func main() {
 
 	//->pass the engine and controllers for handling the routes
 	userrouter.UserRoutes(app, controllers)
-	otprouter.OTPRouter(app, OtpControllers)
+	otprouter.OTPRouter(app, controllers)
 
 	//-> PORT of server
 	app.Listen(":8000")
