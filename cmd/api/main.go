@@ -22,19 +22,20 @@ func main() {
 	//-> redis conenction
 	Redis := redis.NewRedisClient()
 	authmiddileware.AuthenticateMiddileware(Redis)
+
 	//-> DB migrations
 	migrations.Migrations(db)
 
 	//-> the autentication initing happens here
-	controllers := bootstrap.InitAuth(db, Redis)
-
+	Authcontrollers := bootstrap.InitAuth(db, Redis)
+	InterestControllers := bootstrap.InitInterest(db)
 	//->fibre engine
 	app := fiber.New()
 	app.Use(logger.New())
 
 	//->pass the engine and controllers for handling the routes
-	userrouter.UserRoutes(app, controllers)
-	otprouter.OTPRouter(app, controllers)
+	userrouter.UserRoutes(app, Authcontrollers, InterestControllers)
+	otprouter.OTPRouter(app, Authcontrollers)
 
 	//-> PORT of server
 	app.Listen(":8000")
