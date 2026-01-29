@@ -75,6 +75,8 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		})
 	}
 
+	c.Locals("user_id", Data.ID)
+
 	c.Cookie(&fiber.Cookie{
 		Name:     "Access_token",
 		Value:    AccessToken,

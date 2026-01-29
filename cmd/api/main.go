@@ -34,7 +34,7 @@ func main() {
 	app.Use(logger.New())
 
 	//->pass the engine and controllers for handling the routes
-	userrouter.UserRoutes(app, Authcontrollers, InterestControllers)
+	userrouter.UserRoutes(app, Redis, Authcontrollers, InterestControllers)
 	otprouter.OTPRouter(app, Authcontrollers)
 
 	//-> PORT of server

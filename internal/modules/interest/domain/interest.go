@@ -15,3 +15,7 @@ type SubInterest struct {
 
 	Name string `gorm:"not null"`
 }
+
+type Req struct {
+	SubInterestIDs []uint `json:"sub_interest_ids"`
+}

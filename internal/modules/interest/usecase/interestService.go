@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	"thinkdrop-backend/internal/modules/interest/domain"
+	AuthDomain "thinkdrop-backend/internal/modules/auth/userAuth/domain"
 	IntrestDomain "thinkdrop-backend/internal/modules/interest/domain"
 )
 
@@ -14,19 +14,20 @@ func NewInterestService(r IntrestDomain.InterestRepo) *InterestService {
 	return &InterestService{repo: r}
 }
 
-func (r *InterestService) ShowIntrestsService() ([]domain.MainInterestResponse, error) {
-	var interests []domain.MainInterest
+// -> get the entire intrest to show
+func (r *InterestService) ShowIntrestsService() ([]IntrestDomain.MainInterestResponse, error) {
+	var interests []IntrestDomain.MainInterest
 
 	if err := r.repo.GetAll(&interests); err != nil {
 		return nil, errors.New("failed to find intrests")
 	}
-	var response []domain.MainInterestResponse
-	var subs []domain.SubInterestResponse
+	var response []IntrestDomain.MainInterestResponse
+	var subs []IntrestDomain.SubInterestResponse
 
 	for _, v := range interests {
 
 		for _, j := range v.SubInterests {
-			subs = append(subs, domain.SubInterestResponse{
+			subs = append(subs, IntrestDomain.SubInterestResponse{
 				ID:   j.ID,
 				Name: j.Name,
 			})
@@ -41,4 +42,25 @@ func (r *InterestService) ShowIntrestsService() ([]domain.MainInterestResponse, 
 	}
 
 	return response, nil
+}
+
+func (r *InterestService) UserAddInterstsService(UserID uint, Intrests IntrestDomain.Req) (AuthDomain.User, error) {
+	var User AuthDomain.User
+
+	if err := r.repo.FindBy(&User, "id = ?", UserID); err != nil {
+		return AuthDomain.User{}, err
+	}
+
+	if err := r.repo.UpdateUserInterests(&User, Intrests.SubInterestIDs); err != nil {
+		return AuthDomain.User{}, err
+	}
+	
+	if err := r.repo.Save(User); err != nil {
+		return AuthDomain.User{}, err
+	}
+
+	if err := r.repo.FindBy(&User, "id = ?", UserID); err != nil {
+		return AuthDomain.User{}, err
+	}
+	return User, nil
 }

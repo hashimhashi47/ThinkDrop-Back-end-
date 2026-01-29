@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"thinkdrop-backend/internal/modules/interest/domain"
 	"time"
 
 	"gorm.io/gorm"
@@ -13,11 +14,13 @@ type User struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	FullName      string `gorm:"not null"`
-	AnonymousName string `gorm:"uniqueIndex"`
-	Verify        bool   `gorm:"false"`
-	Email         string `gorm:"uniqueIndex;not null"`
-	Password      string `gorm:"not null"`
+	FullName      string          `gorm:"not null"`
+	AnonymousName string          `gorm:"uniqueIndex"`
+	Verify        bool            `gorm:"false"`
+	Email         string          `gorm:"uniqueIndex;not null"`
+	Password      string          `gorm:"not null"`
+
+	SelectedSubs []domain.SubInterest `gorm:"many2many:user_sub_interests;"`
 }
 
 // -> validation on user inputs
