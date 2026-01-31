@@ -3,7 +3,8 @@ package usecase
 import (
 	"errors"
 	Redis "thinkdrop-backend/internal/config/redis"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	AuthDomain"thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	domain "thinkdrop-backend/internal/Common"
 	hashpass "thinkdrop-backend/pkg/hashPass"
 	"thinkdrop-backend/pkg/jwt"
 	"time"
@@ -14,11 +15,11 @@ import (
 // → Auth business rules (services)
 
 type AuthService struct {
-	repo domain.AuthRepo
+	repo AuthDomain.AuthRepo
 	rds  *redis.Client
 }
 
-func NewUserService(r domain.AuthRepo, rd *redis.Client) *AuthService {
+func NewUserService(r AuthDomain.AuthRepo, rd *redis.Client) *AuthService {
 	return &AuthService{repo: r, rds: rd}
 }
 

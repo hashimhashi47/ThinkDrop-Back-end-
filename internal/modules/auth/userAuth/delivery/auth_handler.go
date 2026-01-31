@@ -2,7 +2,7 @@ package delivery
 
 import (
 	"net/http"
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
+	domain "thinkdrop-backend/internal/Common"
 	"thinkdrop-backend/internal/modules/auth/userAuth/usecase"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"

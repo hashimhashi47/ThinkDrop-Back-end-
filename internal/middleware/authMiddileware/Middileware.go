@@ -21,7 +21,6 @@ func AuthenticateMiddileware(rds *redis.Client) fiber.Handler {
 		tkn, err := jwt.ParseWithClaims(AccessToken, claim, func(t *jwt.Token) (interface{}, error) {
 			return KEY, nil
 		})
-
 		if err != nil {
 			return fiber.ErrUnauthorized
 		}

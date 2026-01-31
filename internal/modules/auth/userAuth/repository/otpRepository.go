@@ -3,9 +3,9 @@ package repository
 import (
 	Redis "thinkdrop-backend/internal/config/redis"
 	"time"
+
 	"github.com/redis/go-redis/v9"
 )
-
 
 // -> save the otp on redis
 func (r *AuthRespository) SaveOTP(email, otp string) error {
@@ -15,13 +15,11 @@ func (r *AuthRespository) SaveOTP(email, otp string) error {
 // -> Rate limiting the request it will avoid multiple requests
 func (r *AuthRespository) RateLimitOTP(email string) (bool, error) {
 	key := "OTP:RateLimit:" + email
-
 	count, err := r.redis.Incr(Redis.Ctx, key).Result()
-
 	if err != nil {
 		return false, err
 	}
-
+	
 	if count == 1 {
 		r.redis.Expire(Redis.Ctx, key, 10*time.Minute)
 	}

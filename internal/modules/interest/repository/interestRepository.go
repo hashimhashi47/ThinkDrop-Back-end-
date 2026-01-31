@@ -1,6 +1,7 @@
 package repository
 
 import (
+	domain "thinkdrop-backend/internal/Common"
 	IntrestDomain "thinkdrop-backend/internal/modules/interest/domain"
 
 	"gorm.io/gorm"
@@ -16,7 +17,7 @@ func NewPostgreIntrestRepo(db *gorm.DB) IntrestDomain.InterestRepo {
 
 // -> get the entire intrest
 func (r *InterestRepository) GetAll(model interface{}) error {
-	return r.DB.Find(model).Error
+	return r.DB.Preload("SubInterests").Find(model).Error
 }
 
 // -> find by model,query with any like email,id etc 
@@ -32,7 +33,7 @@ func (r *InterestRepository) Save(model interface{}) error {
 
 // -> upadte the user intrests
 func (r *InterestRepository) UpdateUserInterests(user interface{}, subIDs []uint) error {
-    var subs []IntrestDomain.SubInterest
+    var subs []domain.SubInterest
     if err := r.DB.Where("id IN ?", subIDs).Find(&subs).Error; err != nil {
         return err
     }

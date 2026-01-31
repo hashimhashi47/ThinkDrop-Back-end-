@@ -5,8 +5,7 @@ import (
 	"thinkdrop-backend/internal/config/database"
 	"thinkdrop-backend/internal/config/redis"
 	authmiddileware "thinkdrop-backend/internal/middleware/authMiddileware"
-	otprouter "thinkdrop-backend/internal/router/otpRouter"
-	userrouter "thinkdrop-backend/internal/router/userRouter"
+	"thinkdrop-backend/internal/router"
 	"thinkdrop-backend/migrations"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,13 +28,16 @@ func main() {
 	//-> the autentication initing happens here
 	Authcontrollers := bootstrap.InitAuth(db, Redis)
 	InterestControllers := bootstrap.InitInterest(db)
+	PostController := bootstrap.InitPost(db, Redis)
+
 	//->fibre engine
 	app := fiber.New()
 	app.Use(logger.New())
 
 	//->pass the engine and controllers for handling the routes
-	userrouter.UserRoutes(app, Redis, Authcontrollers, InterestControllers)
-	otprouter.OTPRouter(app, Authcontrollers)
+	router.UserRoutes(app, Redis, Authcontrollers, InterestControllers)
+	router.OTPRouter(app, Authcontrollers)
+	router.PostRoutes(app, PostController, Redis)
 
 	//-> PORT of server
 	app.Listen(":8000")

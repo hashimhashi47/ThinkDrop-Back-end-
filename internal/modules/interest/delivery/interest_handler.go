@@ -2,7 +2,7 @@ package delivery
 
 import (
 	"net/http"
-	Intrestdomain "thinkdrop-backend/internal/modules/interest/domain"
+	domain "thinkdrop-backend/internal/Common"
 	InterestService "thinkdrop-backend/internal/modules/interest/usecase"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
@@ -35,7 +35,7 @@ func (s *InterestControllers) ShowIntrests(c *fiber.Ctx) error {
 
 // -> user will select the intrests it will added on database
 func (s *InterestControllers) UserAddIntersts(c *fiber.Ctx) error {
-	var Req Intrestdomain.Req
+	var Req domain.Req
 
 	if err := c.BodyParser(&Req); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
