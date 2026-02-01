@@ -16,19 +16,18 @@ type PostFeedResponse struct {
 }
 
 type PostUserDTO struct {
-	ID            uint   `json:"id"`
+	UID            uint   `json:"id"`
 	AnonymousName string `json:"anonymous_name"`
 }
 
 type PostInterestDTO struct {
-	ID   uint   `json:"id"`
+	PID   uint   `json:"id"`
 	Name string `json:"name"`
 }
 
 
 
 // -> Profile show post DTO
-
 type PostResponse struct {
 	ID           uint      `json:"id"`
 	Content      string    `json:"content"`

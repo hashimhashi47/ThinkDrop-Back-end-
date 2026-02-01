@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	// "errors"
 	"errors"
 	domain "thinkdrop-backend/internal/Common"
 	PostDomain "thinkdrop-backend/internal/modules/post/domain"
@@ -71,45 +70,45 @@ func (r *PostService) ShowPostsServices(userID uint) ([]domain.PostResponse, err
 }
 
 // -> user feed sesion it will customised by the intrest
-func (r *PostService) UserFeedService(userID uint) (interface{}, error) {
+func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.PostFeedResponse, error) {
 	var User domain.User
 	var AllPosts []domain.Post
-
-	var Feed []domain.PostFeedResponse
 
 	if err := r.repo.FindByUser(&User, "id = ?", userID); err != nil {
 		return nil, err
 	}
 
-	var subIDs []uint
-	for _, s := range User.SelectedSubs {
-		subIDs = append(subIDs, s.ID)
+	subIDs := make([]uint, 0, len(User.SelectedSubs))
+	for _, sub := range User.SelectedSubs {
+		subIDs = append(subIDs, sub.ID)
 	}
 
-	if err := r.repo.FindAll(&AllPosts); err != nil {
+	if len(subIDs) == 0 {
+		return []domain.PostFeedResponse{}, nil
+	}
+
+	if err := r.repo.FindFeedPosts(&AllPosts, subIDs, limit, offset); err != nil {
 		return nil, err
 	}
 
-	for _, v := range User.SelectedSubs {
-		for _, u := range AllPosts {
-			if u.SubInterest.Name == v.Name {
-				Feed = append(Feed, domain.PostFeedResponse{
-					ID:        u.ID,
-					Content:   u.Content,
-					CreatedAt: u.CreatedAt,
-					LikeCount: u.LikeCount,
-					Interest: domain.PostInterestDTO{
-						ID:   u.ID,
-						Name: u.SubInterest.Name,
-					},
-					User: domain.PostUserDTO{
-						ID:            u.User.ID,
-						AnonymousName: u.User.AnonymousName,
-					},
-				})
-			}
-		}
+	feed := make([]domain.PostFeedResponse, 0, len(AllPosts))
+
+	for _, post := range AllPosts {
+		feed = append(feed, domain.PostFeedResponse{
+			ID:        post.ID,
+			Content:   post.Content,
+			CreatedAt: post.CreatedAt,
+			LikeCount: post.LikeCount,
+			Interest: domain.PostInterestDTO{
+				PID:  post.SubInterestID,
+				Name: post.SubInterest.Name,
+			},
+			User: domain.PostUserDTO{
+				UID:           post.UserID,
+				AnonymousName: post.User.AnonymousName,
+			},
+		})
 	}
 
-	return AllPosts, nil
+	return feed, nil
 }

@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"net/http"
+	"strconv"
 	domain "thinkdrop-backend/internal/Common"
 	PostService "thinkdrop-backend/internal/modules/post/usecase"
 	"thinkdrop-backend/pkg/constants"
@@ -70,7 +71,23 @@ func (r *PostControllers) ShowPosts(c *fiber.Ctx) error {
 func (s *PostControllers) Userfeed(c *fiber.Ctx) error {
 	UserID, _ := c.Locals("user_id").(uint)
 
-	Data, err := s.Service.UserFeedService(UserID)
+	limit, err := strconv.Atoi(c.Query("limit", "20"))
+
+	if err != nil {
+		return c.Status(constants.BADREQUEST).JSON(fiber.Map{
+			constants.Error: "invalid limit",
+		})
+	}
+
+	offset, err := strconv.Atoi(c.Query("offset", "0"))
+
+	if err != nil {
+		return c.Status(constants.BADREQUEST).JSON(fiber.Map{
+			constants.Error: "invalid offset",
+		})
+	}
+
+	Data, err := s.Service.UserFeedService(UserID, limit, offset)
 
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{

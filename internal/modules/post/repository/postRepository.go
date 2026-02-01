@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	Commom "thinkdrop-backend/internal/Common"
 	RedisP "thinkdrop-backend/internal/config/redis"
 	"thinkdrop-backend/internal/modules/post/domain"
 	"time"
@@ -57,8 +58,13 @@ func (r *PostRepository) FindByUser(model interface{}, Query string, Any interfa
 	return r.DB.Where(Query, Any).Preload("SelectedSubs.MainInterest").First(model).Error
 }
 
-func (r *PostRepository) FindAll(model interface{}) error {
-	return r.DB.Find(model).Error
+func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limit int, offset int) error {
+	return r.DB.
+		Preload("User").
+		Preload("SubInterest").
+		Where("sub_interest_id IN ?", subIDs).
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(posts).Error
 }
-
-
