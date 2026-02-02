@@ -6,7 +6,6 @@ import (
 	RedisP "thinkdrop-backend/internal/config/redis"
 	"thinkdrop-backend/internal/modules/post/domain"
 	"time"
-
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -16,14 +15,17 @@ type PostRepository struct {
 	RDS *redis.Client
 }
 
+
 func NewPostRepository(db *gorm.DB, rds *redis.Client) domain.PostRepo {
 	return &PostRepository{DB: db, RDS: rds}
 }
 
+// -> find anything with query and what with need to chack
 func (r *PostRepository) FindAnything(model interface{}, Query, Any interface{}) error {
 	return r.DB.Where(Query, Any).First(model).Error
 }
 
+// -> insert data into table
 func (r *PostRepository) Insert(model interface{}) error {
 	return r.DB.Create(model).Error
 }
@@ -50,14 +52,18 @@ func (r *PostRepository) AllowPost(userID uint) (bool, error) {
 	return true, nil
 }
 
+// -> find anything include preload 
 func (r *PostRepository) FindAnyWithpreload(model interface{}, Query, AnyData interface{}, Preload string) error {
 	return r.DB.Preload(Preload).Where(Query, AnyData).Find(model).Error
 }
 
+// -> finc user with preload
 func (r *PostRepository) FindByUser(model interface{}, Query string, Any interface{}) error {
 	return r.DB.Where(Query, Any).Preload("SelectedSubs.MainInterest").First(model).Error
 }
 
+
+// -> specifically for find the post releated to the user
 func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limit int, offset int) error {
 	return r.DB.
 		Preload("User").
@@ -67,4 +73,4 @@ func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limi
 		Limit(limit).
 		Offset(offset).
 		Find(posts).Error
-}
+}	

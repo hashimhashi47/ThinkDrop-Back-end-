@@ -109,6 +109,5 @@ func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.
 			},
 		})
 	}
-
 	return feed, nil
 }

@@ -4,6 +4,9 @@ import (
 	AuthDelivery "thinkdrop-backend/internal/modules/auth/userAuth/delivery"
 	AuthRepository "thinkdrop-backend/internal/modules/auth/userAuth/repository"
 	AuthUsecase "thinkdrop-backend/internal/modules/auth/userAuth/usecase"
+	ProfileDelivery "thinkdrop-backend/internal/modules/profile_page/delivery"
+	"thinkdrop-backend/internal/modules/profile_page/repository"
+	"thinkdrop-backend/internal/modules/profile_page/usecase"
 
 	InterestDelivery "thinkdrop-backend/internal/modules/interest/delivery"
 	InterestRepository "thinkdrop-backend/internal/modules/interest/repository"
@@ -33,9 +36,16 @@ func InitInterest(db *gorm.DB) *InterestDelivery.InterestControllers {
 	return controllers
 }
 
-func InitPost(db *gorm.DB,rds *redis.Client) *PostDelivery.PostControllers {
-	repo := PostRepository.NewPostRepository(db,rds)
+func InitPost(db *gorm.DB, rds *redis.Client) *PostDelivery.PostControllers {
+	repo := PostRepository.NewPostRepository(db, rds)
 	service := PostUsecase.NewPostService(repo)
 	controllers := PostDelivery.NewPostControllers(service)
+	return controllers
+}
+
+func InitProfile(db *gorm.DB) *ProfileDelivery.ProfileController {
+	repo := repository.NewProfileRepository(db)
+	service := usecase.NewProfileService(repo)
+	controllers := ProfileDelivery.NewProfileControllers(service)
 	return controllers
 }

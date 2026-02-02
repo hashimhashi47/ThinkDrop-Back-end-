@@ -29,6 +29,7 @@ func main() {
 	Authcontrollers := bootstrap.InitAuth(db, Redis)
 	InterestControllers := bootstrap.InitInterest(db)
 	PostController := bootstrap.InitPost(db, Redis)
+	ProfileController := bootstrap.InitProfile(db)
 
 	//->fibre engine
 	app := fiber.New()
@@ -38,6 +39,7 @@ func main() {
 	router.UserRoutes(app, Redis, Authcontrollers, InterestControllers)
 	router.OTPRouter(app, Authcontrollers)
 	router.PostRoutes(app, PostController, Redis)
+	router.ProfileRoute(app, Redis, ProfileController)
 
 	//-> PORT of server
 	app.Listen(":8000")

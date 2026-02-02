@@ -25,7 +25,6 @@ func (r *InterestService) ShowIntrestsService() ([]domain.MainInterest, error) {
 	var subs []domain.SubInterest
 
 	for _, v := range interests {
-
 		for _, j := range v.SubInterests {
 			subs = append(subs, domain.SubInterest{
 				ID:   j.ID,
