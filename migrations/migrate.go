@@ -17,6 +17,7 @@ func Migrations(db *gorm.DB) {
 		domain.Report{},
 		domain.Comment{},
 		domain.UserFollow{},
+		domain.Avatar{},
 	)
 	if err != nil {
 		log.Fatal("Migration error", err)

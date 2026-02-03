@@ -4,7 +4,7 @@ import "time"
 
 type ProfilePage struct {
 	AnonymousName  string
-	bio            string
+	Bio            string
 	FollowersCount int `gorm:"default:0"`
 	FollowingCount int `gorm:"default:0"`
 	WritingsCount  int `gorm:"default:0"`
@@ -22,4 +22,26 @@ type WritingDTO struct {
 	Content   string    `json:"content"`
 	Intrests  string    `json:"intrest"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+type UserProfileResponse struct {
+	ID            uint
+	FullName      string
+	AnonymousName string
+	Bio           string
+	ProfileAvatar string
+	Followers     []UserFollow
+	Following     []UserFollow
+}
+
+func MapUserToProfile(u User) UserProfileResponse {
+	return UserProfileResponse{
+		ID:            u.ID,
+		FullName:      u.FullName,
+		AnonymousName: u.AnonymousName,
+		Bio:           u.Bio,
+		ProfileAvatar: u.ImageURL,
+		Followers:     u.Followers,
+		Following:     u.Following,
+	}
 }
