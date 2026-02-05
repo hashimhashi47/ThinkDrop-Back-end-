@@ -45,3 +45,13 @@ func MapUserToProfile(u User) UserProfileResponse {
 		Following:     u.Following,
 	}
 }
+
+
+type FollowUserResponse struct {
+	UserID        uint   `json:"user_id"`
+	AnonymousName string `json:"anonymous_name"`
+
+	IsFollowing   bool `json:"is_following"`   // I follow them
+	IsFollower    bool `json:"is_follower"`    // They follow me
+}
+

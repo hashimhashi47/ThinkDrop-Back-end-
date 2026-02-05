@@ -33,27 +33,6 @@ func (s *ProfileController) ShowProfile(c *fiber.Ctx) error {
 	})
 }
 
-// -> show the others users profile
-func (s *ProfileController) ShowOtherUserProfile(c *fiber.Ctx) error {
-	profileID, err := c.ParamsInt("id")
-	if err != nil {
-		return fiber.ErrBadRequest
-	}
-
-	data, err := s.Service.ShowOtherUserProfileService(profileID)
-
-	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
-		})
-	}
-
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		constants.Sucess: response.SuccessResponse(data),
-	})
-
-}
-
 // -> follow a user
 func (s *ProfileController) FollowUser(c *fiber.Ctx) error {
 	profileID, err := c.ParamsInt("id")
@@ -80,7 +59,7 @@ func (s *ProfileController) FollowUser(c *fiber.Ctx) error {
 	})
 }
 
-//-> unfollow a user
+// -> unfollow a user
 func (s *ProfileController) UserUnfollow(c *fiber.Ctx) error {
 	id, err := c.ParamsInt("id")
 	profileID := uint(id)
@@ -108,4 +87,55 @@ func (s *ProfileController) UserUnfollow(c *fiber.Ctx) error {
 		constants.Sucess: response.SuccessResponse(result),
 	})
 
+}
+
+// -> gell all wrtitings of the user
+func (s *ProfileController) GetAllWritings(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+
+	data, err := s.Service.GetAllWritingsService(UserID)
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
+}
+
+// -> get all followers of the user
+func (s *ProfileController) GetAllFollowers(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+
+	data, err := s.Service.GetAllFollowersService(UserID)
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
+}
+
+// -> get all followings of the user
+func (s *ProfileController) GetFollowings(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+
+	data, err := s.Service.GetAllFollowingService(UserID)
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
 }

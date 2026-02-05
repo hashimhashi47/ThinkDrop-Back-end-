@@ -4,9 +4,14 @@ import (
 	AuthDelivery "thinkdrop-backend/internal/modules/auth/userAuth/delivery"
 	AuthRepository "thinkdrop-backend/internal/modules/auth/userAuth/repository"
 	AuthUsecase "thinkdrop-backend/internal/modules/auth/userAuth/usecase"
+
 	ProfileDelivery "thinkdrop-backend/internal/modules/profile_page/delivery"
-	"thinkdrop-backend/internal/modules/profile_page/repository"
-	"thinkdrop-backend/internal/modules/profile_page/usecase"
+	ProfileRepository "thinkdrop-backend/internal/modules/profile_page/repository"
+	ProfileUsecase "thinkdrop-backend/internal/modules/profile_page/usecase"
+
+	RewardDelivery "thinkdrop-backend/internal/modules/reward/delivery"
+	RewardRepository "thinkdrop-backend/internal/modules/reward/repository"
+	RewardUsecase "thinkdrop-backend/internal/modules/reward/usecase"
 
 	InterestDelivery "thinkdrop-backend/internal/modules/interest/delivery"
 	InterestRepository "thinkdrop-backend/internal/modules/interest/repository"
@@ -44,8 +49,15 @@ func InitPost(db *gorm.DB, rds *redis.Client) *PostDelivery.PostControllers {
 }
 
 func InitProfile(db *gorm.DB) *ProfileDelivery.ProfileController {
-	repo := repository.NewProfileRepository(db)
-	service := usecase.NewProfileService(repo)
+	repo := ProfileRepository.NewProfileRepository(db)
+	service := ProfileUsecase.NewProfileService(repo)
 	controllers := ProfileDelivery.NewProfileControllers(service)
+	return controllers
+}
+
+func InitRewards(db *gorm.DB) *RewardDelivery.RewardController {
+	repo := RewardRepository.NewRewardRepository(db)
+	service := RewardUsecase.NewRewardService(repo)
+	controllers := RewardDelivery.NewRewardController(service)
 	return controllers
 }

@@ -13,6 +13,13 @@ const (
 	Error  = "Error"
 )
 
+// WalletStatus
+const (
+	WalletActive   = "active"
+	WalletInactive = "inactive" 
+	WalletBlocked  = "blocked"
+)
+
 var (
 	SUCESSCODE           = 200
 	BADREQUEST           = 400

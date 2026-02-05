@@ -15,7 +15,7 @@ type Post struct {
 	Content string `json:"content" gorm:"type:text;not null"`
 
 	// Foreign Keys
-	UserID uint 
+	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
 
 	SubInterestID uint        `json:"intrestid"`
@@ -53,5 +53,3 @@ type Report struct {
 
 	CreatedAt time.Time
 }
-
-

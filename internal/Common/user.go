@@ -18,13 +18,17 @@ type User struct {
 	Verify        bool   `gorm:"false"`
 	Email         string `gorm:"uniqueIndex;not null"`
 	Password      string `gorm:"not null"`
-	
-	ImageURL     string        `json:"image_url" validate:"omitempty,url"`
-	Bio          string        `json:"bio" validate:"omitempty,max=160"`
-	Following    []UserFollow  `gorm:"foreignKey:FollowerID"`
-	Followers    []UserFollow  `gorm:"foreignKey:FollowedID"`
-	Posts        []Post        `gorm:"foreignKey:UserID"`
-	
+
+	ImageURL  string       `json:"image_url" validate:"omitempty,url"`
+	Bio       string       `json:"bio" validate:"omitempty,max=160"`
+	Following []UserFollow `gorm:"foreignKey:FollowerID"`
+	Followers []UserFollow `gorm:"foreignKey:FollowedID"`
+	Posts     []Post       `gorm:"foreignKey:UserID"`
+
+	Wallet      Wallet
+	BankAccount BankAccount
+	Withdrawals []Withdrawal
+
 	SelectedSubs []SubInterest `gorm:"many2many:user_sub_interests;"`
 }
 

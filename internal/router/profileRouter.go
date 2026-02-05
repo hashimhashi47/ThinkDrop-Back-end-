@@ -14,6 +14,9 @@ func ProfileRoute(app *fiber.App, rds *redis.Client, ProfileController *delivery
 	User.Get("/avatars", ProfileController.GetAvatars)
 	User.Put("/updateprofile", ProfileController.EditProfile)
 	User.Get("/profile", ProfileController.ShowProfile)
+	User.Get("/writings", ProfileController.GetAllWritings)
+	User.Get("/followings", ProfileController.GetFollowings)
+	User.Get("/followers", ProfileController.GetAllFollowers)
 
 	User.Get("/:id", ProfileController.ShowOtherUserProfile)
 	User.Post("/follow/:id", ProfileController.FollowUser)

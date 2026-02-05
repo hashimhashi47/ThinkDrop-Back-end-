@@ -59,6 +59,7 @@ func (r *ProfileService) ShowOtherUserProfileService(id int) (domain.ProfileResp
 	}, nil
 }
 
+// -> follow a user service
 func (r *ProfileService) FollowUserService(UserID uint,
 	OtherUserID int) (domain.UserProfileResponse, domain.UserProfileResponse, error) {
 
@@ -113,4 +114,96 @@ func (r *ProfileService) UnfollowUser(userID uint,
 	}
 
 	return domain.MapUserToProfile(User), domain.MapUserToProfile(OtherUser), nil
+}
+
+
+// -> get all Users writings logic
+func (r *ProfileService) GetAllWritingsService(UserID interface{}) ([]domain.PostFeedResponse, error) {
+	var User domain.User
+
+	if err := r.repo.Find(&User, "id = ?", UserID, "Posts.SubInterest"); err != nil {
+		return nil, errors.New("failed to get the writings")
+	}
+
+	var Posts []domain.PostFeedResponse
+
+	for _, v := range User.Posts {
+		Posts = append(Posts, domain.PostFeedResponse{
+			ID:        v.ID,
+			Content:   v.Content,
+			CreatedAt: v.CreatedAt,
+			LikeCount: v.LikeCount,
+			Interest: domain.PostInterestDTO{
+				PID:  v.SubInterestID,
+				Name: v.SubInterest.Name,
+			},
+			User: domain.PostUserDTO{
+				UID:           v.UserID,
+				AnonymousName: User.AnonymousName,
+			},
+		})
+	}
+
+	return Posts, nil
+}
+
+// -> get all users followers logic
+func (r *ProfileService) GetAllFollowersService(UserID interface{}) ([]domain.FollowUserResponse, error) {
+	var User domain.User
+
+	var Followers []domain.FollowUserResponse
+
+	if err := r.repo.Find(&User, "id = ?", UserID, "Followers.Follower", "Following.Followed"); err != nil {
+		return nil, errors.New("failed to get the Followers")
+	}
+
+	following := make(map[uint]bool)
+
+	for _, v := range User.Following {
+		following[v.FollowedID] = true
+	}
+
+	for _, c := range User.Followers {
+
+		isFollowing := following[c.FollowerID]
+
+		Followers = append(Followers, domain.FollowUserResponse{
+			UserID:        c.Follower.ID,
+			AnonymousName: c.Follower.AnonymousName,
+			IsFollower:    true,
+			IsFollowing:   isFollowing,
+		})
+	}
+
+	return Followers, nil
+}
+
+// -> get all users following logic
+func (r *ProfileService) GetAllFollowingService(UserID interface{}) ([]domain.FollowUserResponse, error) {
+	var User domain.User
+
+	var Following []domain.FollowUserResponse
+
+	if err := r.repo.Find(&User, "id = ?", UserID, "Following.Followed", "Followers"); err != nil {
+		return nil, errors.New("failed to get the Followers")
+	}
+
+	follower := make(map[uint]bool)
+
+	for _, v := range User.Followers {
+		follower[v.FollowerID] = true
+	}
+
+	for _, f := range User.Following {
+		isFollower := follower[f.FollowedID]
+
+		Following = append(Following, domain.FollowUserResponse{
+			UserID:        f.Followed.ID,
+			AnonymousName: f.Followed.AnonymousName,
+			IsFollowing:   true,
+			IsFollower:    isFollower,
+		})
+	}
+
+	return Following, nil
 }
