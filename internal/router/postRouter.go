@@ -14,4 +14,6 @@ func PostRoutes(app *fiber.App, PostController *delivery.PostControllers, rds *r
 	Post.Post("/uploadpost", PostController.AddPost)
 	Post.Get("/getalluserwithposts", PostController.ShowPosts)
 	Post.Get("/getallfeed", PostController.Userfeed)
+	Post.Post("/likepost/:id", PostController.LikePost)
+	Post.Delete("/unlikepost/:id", PostController.UnLikePost)
 }

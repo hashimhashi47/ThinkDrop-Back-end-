@@ -26,9 +26,11 @@ type PostInterestDTO struct {
 
 // -> Profile show post DTO
 type PostResponse struct {
-	ID          uint      `json:"id"`
-	Content     string    `json:"content"`
-	SubInterest string    `json:"sub_interest"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           uint      `json:"id"`
+	Content      string    `json:"content"`
+	SubInterest  string    `json:"sub_interest"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	LikeCount    int       `json:"likecount"`
+	CommentCount int       `json:"commentcount"`
 }

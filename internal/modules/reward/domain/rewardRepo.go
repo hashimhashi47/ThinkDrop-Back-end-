@@ -5,4 +5,5 @@ type RewardRepo interface {
 	Create(model interface{}) error
 	FindAll(model interface{}) error
 	Save(model interface{}) error
+	Update(model interface{}, query string, arg interface{}, updates map[string]interface{}) error
 }

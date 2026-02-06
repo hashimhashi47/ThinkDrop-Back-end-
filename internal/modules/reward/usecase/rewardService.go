@@ -48,12 +48,36 @@ func (r *RewardService) CreateWalletService(userID uint) (domain.Wallet, error) 
 	return Wallet, nil
 }
 
+// -> get the updated reward details
 func (r *RewardService) GetRewardDetailsService(UserID uint) (domain.Wallet, error) {
+	var User domain.User
 	var wallet domain.Wallet
 
 	if err := r.repo.Find(&wallet, "user_id = ?", UserID); err != nil {
 		return domain.Wallet{}, errors.New("failed to create the wallet")
 	}
 
+	if err := r.repo.Find(&User, "id = ?", UserID, "Posts"); err != nil {
+		return domain.Wallet{}, errors.New("failed to create the wallet")
+	}
+
+	var totalLike int
+	var TotalPoints int
+
+	for _, v := range User.Posts {
+		totalLike += v.LikeCount
+	}
+	TotalPoints = totalLike * 2
+
+	if err := r.repo.Update(&wallet, "id = ?", wallet.ID, map[string]interface{}{
+		"points_available": TotalPoints,
+		"total_likes":      totalLike,
+	}); err != nil {
+		return domain.Wallet{}, errors.New("failed to update wallet")
+	}
+
 	return wallet, nil
 }
+
+
+

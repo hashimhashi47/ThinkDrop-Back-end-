@@ -21,7 +21,7 @@ func main() {
 	//-> redis conenction
 	Redis := redis.NewRedisClient()
 	authmiddileware.AuthenticateMiddileware(Redis)
-
+	
 	//-> DB migrations
 	migrations.Migrations(db)
 

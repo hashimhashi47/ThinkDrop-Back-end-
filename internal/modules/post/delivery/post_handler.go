@@ -33,8 +33,8 @@ func (s *PostControllers) AddPost(c *fiber.Ctx) error {
 	data, err := s.Service.AddPostService(PostDetails, UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
 		})
 	}
 
@@ -56,8 +56,8 @@ func (r *PostControllers) ShowPosts(c *fiber.Ctx) error {
 	data, err := r.Service.ShowPostsServices(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
 		})
 	}
 
@@ -74,7 +74,7 @@ func (s *PostControllers) Userfeed(c *fiber.Ctx) error {
 	limit, err := strconv.Atoi(c.Query("limit", "20"))
 
 	if err != nil {
-		return c.Status(constants.BADREQUEST).JSON(fiber.Map{
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			constants.Error: "invalid limit",
 		})
 	}
@@ -82,7 +82,7 @@ func (s *PostControllers) Userfeed(c *fiber.Ctx) error {
 	offset, err := strconv.Atoi(c.Query("offset", "0"))
 
 	if err != nil {
-		return c.Status(constants.BADREQUEST).JSON(fiber.Map{
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			constants.Error: "invalid offset",
 		})
 	}
@@ -90,8 +90,53 @@ func (s *PostControllers) Userfeed(c *fiber.Ctx) error {
 	Data, err := s.Service.UserFeedService(UserID, limit, offset)
 
 	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(Data),
+	})
+}
+
+// -> Like the post
+func (s *PostControllers) LikePost(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+	PostID, err := c.ParamsInt("id")
+
+	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+	Data, err := s.Service.LikePostService(UserID, PostID)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(Data),
+	})
+}
+
+func (s *PostControllers) UnLikePost(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+	PostID, err := c.ParamsInt("id")
+
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+	Data, err := s.Service.UnLikePostService(UserID, PostID)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
 		})
 	}
 

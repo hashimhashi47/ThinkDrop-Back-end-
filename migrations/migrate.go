@@ -20,6 +20,7 @@ func Migrations(db *gorm.DB) {
 		domain.Avatar{},
 		domain.Wallet{},
 		domain.BankAccount{},
+		domain.Like{},
 	)
 	if err != nil {
 		log.Fatal("Migration error", err)

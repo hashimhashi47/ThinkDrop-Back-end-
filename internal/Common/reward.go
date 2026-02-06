@@ -34,6 +34,13 @@ type BankAccount struct {
 	UpdatedAt time.Time
 }
 
+type BankAccountInput struct {
+	AccountHolderName string `json:"accountholdername" validate:"required,alphaunicode"`
+	AccountNumber     string `json:"accountnumber" validate:"required,numeric"`
+	ReAccountNumber   string `json:"reaccountnumber" validate:"required,numeric"`
+	IFSCCode          string `json:"ifsccode" validate:"required,len=11,uppercase"`
+}
+
 type Withdrawal struct {
 	ID uint `gorm:"primaryKey"`
 

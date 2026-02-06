@@ -36,3 +36,13 @@ func (r *RewardRepository) FindAll(model interface{}) error {
 func (r *RewardRepository) Save(model interface{}) error {
 	return r.DB.Save(model).Error
 }
+
+func (r *RewardRepository) Update(model interface{}, query string, arg interface{}, updates map[string]interface{},
+) error {
+
+	return r.DB.
+		Model(model).
+		Where(query, arg).
+		Updates(updates).
+		Error
+}

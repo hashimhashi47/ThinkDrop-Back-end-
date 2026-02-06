@@ -4,6 +4,8 @@ import (
 	"errors"
 	domain "thinkdrop-backend/internal/Common"
 	PostDomain "thinkdrop-backend/internal/modules/post/domain"
+
+	"gorm.io/gorm"
 )
 
 type PostService struct {
@@ -46,7 +48,7 @@ func (r *PostService) AddPostService(Post domain.Post, UserID uint) (domain.Post
 	return AddPost, nil
 }
 
-// -> showAll users post can show their acccounts
+// -> show All users post can show their acccounts
 func (r *PostService) ShowPostsServices(userID uint) ([]domain.PostResponse, error) {
 	var posts []domain.Post
 
@@ -58,11 +60,13 @@ func (r *PostService) ShowPostsServices(userID uint) ([]domain.PostResponse, err
 
 	for _, post := range posts {
 		response = append(response, domain.PostResponse{
-			ID:          post.ID,
-			Content:     post.Content,
-			SubInterest: post.SubInterest.Name,
-			CreatedAt:   post.CreatedAt,
-			UpdatedAt:   post.UpdatedAt,
+			ID:           post.ID,
+			Content:      post.Content,
+			SubInterest:  post.SubInterest.Name,
+			CreatedAt:    post.CreatedAt,
+			UpdatedAt:    post.UpdatedAt,
+			LikeCount:    post.LikeCount,
+			CommentCount: post.CommentCount,
 		})
 	}
 
@@ -110,4 +114,41 @@ func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.
 		})
 	}
 	return feed, nil
+}
+
+// -> add like on post logic
+func (r *PostService) LikePostService(UserID uint, PostID int) (bool, error) {
+	Like := domain.Like{
+		UserID: UserID,
+		PostID: uint(PostID),
+	}
+
+	if err := r.repo.Create(&Like); err != nil {
+		return false, errors.New("already liked the post")
+	}
+
+	if err := r.repo.UpdateColumn(&domain.Post{}, "id = ?", PostID, "like_count",
+		gorm.Expr("like_count + 1")); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// -> unlike post
+func (r *PostService) UnLikePostService(UserID uint, PostID int) (bool, error) {
+	result, err := r.repo.DeleteWhere(&domain.Like{}, "user_id = ? AND post_id = ?", UserID, PostID)
+	if err != nil {
+		return false, err
+	}
+
+	if result.RowsAffected == 0 {
+		return false, errors.New("post not liked")
+	}
+
+	if err := r.repo.UpdateColumn(&domain.Post{}, "id = ?", PostID, "like_count",
+		gorm.Expr("like_count - 1")); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

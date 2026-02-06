@@ -6,6 +6,7 @@ import (
 	RedisP "thinkdrop-backend/internal/config/redis"
 	"thinkdrop-backend/internal/modules/post/domain"
 	"time"
+
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -14,7 +15,6 @@ type PostRepository struct {
 	DB  *gorm.DB
 	RDS *redis.Client
 }
-
 
 func NewPostRepository(db *gorm.DB, rds *redis.Client) domain.PostRepo {
 	return &PostRepository{DB: db, RDS: rds}
@@ -52,16 +52,19 @@ func (r *PostRepository) AllowPost(userID uint) (bool, error) {
 	return true, nil
 }
 
-// -> find anything include preload 
-func (r *PostRepository) FindAnyWithpreload(model interface{}, Query, AnyData interface{}, Preload string) error {
-	return r.DB.Preload(Preload).Where(Query, AnyData).Find(model).Error
+// -> find anything include preload
+func (r *PostRepository) FindAnyWithpreload(model interface{}, query string, args interface{}, preloads ...string) error {
+	db := r.DB.Where(query, args)
+	for _, preload := range preloads {
+		db = db.Preload(preload)
+	}
+	return db.First(model).Error
 }
 
 // -> finc user with preload
 func (r *PostRepository) FindByUser(model interface{}, Query string, Any interface{}) error {
 	return r.DB.Where(Query, Any).Preload("SelectedSubs.MainInterest").First(model).Error
 }
-
 
 // -> specifically for find the post releated to the user
 func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limit int, offset int) error {
@@ -73,4 +76,29 @@ func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limi
 		Limit(limit).
 		Offset(offset).
 		Find(posts).Error
-}	
+}
+
+func (r *PostRepository) Save(model interface{}) error {
+	return r.DB.Save(model).Error
+}
+
+func (r *PostRepository) DeleteWhere(model interface{}, query string, args ...interface{},
+) (*gorm.DB, error) {
+	result := r.DB.Where(query, args...).Delete(model)
+	return result, result.Error
+}
+
+// -> create on database
+func (r *PostRepository) Create(model interface{}) error {
+	return r.DB.Create(model).Error
+}
+
+func (r *PostRepository) UpdateColumn(model interface{}, query string, id interface{}, column string, value interface{},
+) error {
+
+	return r.DB.
+		Model(model).
+		Where(query, id).
+		UpdateColumn(column, value).
+		Error
+}

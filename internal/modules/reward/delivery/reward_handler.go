@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"fmt"
 	"net/http"
 	RewardService "thinkdrop-backend/internal/modules/reward/usecase"
 	"thinkdrop-backend/pkg/constants"
@@ -59,7 +60,7 @@ func (s *RewardController) CreateWallet(c *fiber.Ctx) error {
 // -> get the reward details
 func (s *RewardController) GetRewardDetails(c *fiber.Ctx) error {
 	UserID, _ := c.Locals("user_id").(uint)
-
+	fmt.Println(UserID)
 	Data, err := s.service.GetRewardDetailsService(UserID)
 
 	if err != nil {
