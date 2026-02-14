@@ -16,8 +16,9 @@ func UserRoutes(app *fiber.App, Redis *redis.Client, AuthControllers *AuthDelive
 	Auth.Post("/signup", AuthControllers.UserSignup)
 	Auth.Post("/login", AuthControllers.UserLogin)
 	Auth.Post("/refersh", AuthControllers.RefreshToken)
-		
+	Auth.Post("/logout", authmiddileware.AuthenticateMiddileware(Redis), AuthControllers.Logout)
 
 	app.Get("/getallinterest", IntrestControllers.ShowIntrests)
 	app.Post("/addinterest", authmiddileware.AuthenticateMiddileware(Redis), IntrestControllers.UserAddIntersts)
+
 }

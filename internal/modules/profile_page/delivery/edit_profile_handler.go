@@ -16,8 +16,10 @@ func (s *ProfileController) GetAvatars(c *fiber.Ctx) error {
 	Data, err := s.Service.GetAvatarsService()
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -46,9 +48,11 @@ func (s *ProfileController) EditProfile(c *fiber.Ctx) error {
 
 	data, err := s.Service.EditProfileService(UserID,EditProfile)
 
-	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

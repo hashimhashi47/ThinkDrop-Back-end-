@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"errors"
-	Redis "thinkdrop-backend/internal/config/redis"
-	AuthDomain"thinkdrop-backend/internal/modules/auth/userAuth/domain"
 	domain "thinkdrop-backend/internal/Common"
+	Redis "thinkdrop-backend/internal/config/redis"
+	AuthDomain "thinkdrop-backend/internal/modules/auth/userAuth/domain"
 	hashpass "thinkdrop-backend/pkg/hashPass"
 	"thinkdrop-backend/pkg/jwt"
 	"time"
@@ -36,6 +36,7 @@ func (r *AuthService) UserSignupService(userDetails *domain.UserValidate) (user 
 		AnonymousName: userDetails.AnonymousName,
 		Email:         userDetails.Email,
 		Password:      hashedPass,
+		ImageURL:      "https://api.dicebear.com/7.x/lorelei/svg",
 	}
 
 	if err := r.repo.Insert(User); err != nil {
@@ -75,4 +76,20 @@ func (r *AuthService) UserLoginService(UserLoginCredential *domain.Login) (user 
 	}
 
 	return userDetails, Accesstoken, RefereshToken, nil
+}
+
+func (r *AuthService) LogoutService(userId uint) error {
+	var User domain.User
+
+	if err := r.repo.FindAnything(&User, "id = ?", userId); err != nil {
+		return errors.New("failed to find teh user")
+	}
+
+	key := "RefershToken:" + User.Email
+
+	if err := r.rds.Del(Redis.Ctx, key).Err(); err != nil {
+		return errors.New("failed to delete refresh token")
+	}
+
+	return nil
 }

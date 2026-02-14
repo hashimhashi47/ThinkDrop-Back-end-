@@ -18,8 +18,7 @@ type Post struct {
 	UserID uint
 	User   User `gorm:"foreignKey:UserID"`
 
-	SubInterestID uint        `json:"intrestid"`
-	SubInterest   SubInterest `gorm:"foreignKey:SubInterestID"`
+	SubInterests []SubInterest `gorm:"many2many:post_sub_interests;"`
 
 	// Counters (fast reads)
 	LikeCount    int `gorm:"default:0"`

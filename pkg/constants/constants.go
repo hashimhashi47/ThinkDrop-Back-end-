@@ -13,10 +13,19 @@ const (
 	Error  = "Error"
 )
 
+var (
+	ErrSignupFailed           = "signup failed"
+	ErrUserNotFound           = "user not found"
+	ErrInvalidPassword        = "invalid password"
+	ErrAccessTokenCreateFail  = "failed to create access token"
+	ErrRefreshTokenCreateFail = "failed to create refresh token"
+	ErrRefreshTokenStoreFail  = "failed to store refresh token"
+)
+
 // WalletStatus
 const (
 	WalletActive   = "active"
-	WalletInactive = "inactive" 
+	WalletInactive = "inactive"
 	WalletBlocked  = "blocked"
 )
 
@@ -35,6 +44,7 @@ var (
 	GATEWAYTIMEOUT       = 504
 	UNSUPPORTEDMEDIATYPE = 415
 	UNPROCESSABLEENTITY  = 422
+	STATUSCONFLIT        = 409
 
 	UNAVAILABLE    = "UNAVAILABLE"
 	PENDING        = "PENDING"

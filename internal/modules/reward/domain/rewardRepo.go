@@ -6,4 +6,6 @@ type RewardRepo interface {
 	FindAll(model interface{}) error
 	Save(model interface{}) error
 	Update(model interface{}, query string, arg interface{}, updates map[string]interface{}) error
+	UpdateWallet(walletID uint, withdrawPoints int) error
+	FindAllwithArg(model interface{}, query string, args interface{}, limit, offset int) error
 }

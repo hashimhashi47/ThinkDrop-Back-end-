@@ -28,25 +28,43 @@ func (r *ProfileService) ShowProfileService(UserID uint) (domain.ProfilePage, er
 		FollowingCount: len(User.Following),
 		WritingsCount:  len(User.Posts),
 		Bio:            User.Bio,
+		Avatar:         User.ImageURL,
 	}
 
 	return Response, nil
 }
 
-// -> swow other users profile details
-func (r *ProfileService) ShowOtherUserProfileService(id int) (domain.ProfileResponseDTO, error) {
+// -> show other user's profile details + follow status
+func (r *ProfileService) ShowOtherUserProfileService(profileUserID int, currentUserID uint) (domain.ProfileResponseDTO, error) {
+
 	var UserDetails domain.User
 
-	if err := r.repo.Find(&UserDetails, "id = ?", id, "Posts.SubInterest"); err != nil {
+	if err := r.repo.Find(&UserDetails, "id = ?", profileUserID, "Posts.SubInterests", "Followers"); err != nil {
 		return domain.ProfileResponseDTO{}, errors.New("failed to find the user")
+	}
+
+	isFollowing := false
+	for _, f := range UserDetails.Followers {
+		if f.FollowerID == currentUserID {
+			isFollowing = true
+			break
+		}
 	}
 
 	writings := make([]domain.WritingDTO, 0, len(UserDetails.Posts))
 	for _, v := range UserDetails.Posts {
+
+		var interests []string
+
+		for _, v := range v.SubInterests {
+			interests = append(interests, v.Name)
+		}
+
 		writings = append(writings, domain.WritingDTO{
 			ID:        v.ID,
 			Content:   v.Content,
-			Intrests:  v.SubInterest.Name,
+			Intrests:  interests,
+			ImageURL:  UserDetails.ImageURL,
 			CreatedAt: v.CreatedAt,
 		})
 	}
@@ -55,7 +73,9 @@ func (r *ProfileService) ShowOtherUserProfileService(id int) (domain.ProfileResp
 		AnonymousName: UserDetails.AnonymousName,
 		WritingsCount: len(UserDetails.Posts),
 		Bio:           UserDetails.Bio,
+		ImageURL:      UserDetails.ImageURL,
 		Writings:      writings,
+		IsFollowing:   isFollowing,
 	}, nil
 }
 
@@ -116,30 +136,36 @@ func (r *ProfileService) UnfollowUser(userID uint,
 	return domain.MapUserToProfile(User), domain.MapUserToProfile(OtherUser), nil
 }
 
-
 // -> get all Users writings logic
-func (r *ProfileService) GetAllWritingsService(UserID interface{}) ([]domain.PostFeedResponse, error) {
-	var User domain.User
+func (r *ProfileService) GetAllWritingsService(UserID uint, limit, offset int) ([]domain.PostFeedResponse, error) {
 
-	if err := r.repo.Find(&User, "id = ?", UserID, "Posts.SubInterest"); err != nil {
-		return nil, errors.New("failed to get the writings")
+	posts, err := r.repo.GetUserPosts(UserID, limit, offset)
+	if err != nil {
+		return nil, errors.New("failed to get writings")
 	}
 
 	var Posts []domain.PostFeedResponse
 
-	for _, v := range User.Posts {
+	for _, v := range posts {
+
+		// collect interests
+		interests := make([]domain.PostInterestDTO, 0, len(v.SubInterests))
+		for _, si := range v.SubInterests {
+			interests = append(interests, domain.PostInterestDTO{
+				PID:  si.ID,
+				Name: si.Name,
+			})
+		}
 		Posts = append(Posts, domain.PostFeedResponse{
 			ID:        v.ID,
 			Content:   v.Content,
 			CreatedAt: v.CreatedAt,
 			LikeCount: v.LikeCount,
-			Interest: domain.PostInterestDTO{
-				PID:  v.SubInterestID,
-				Name: v.SubInterest.Name,
-			},
+			Interests: interests,
 			User: domain.PostUserDTO{
 				UID:           v.UserID,
-				AnonymousName: User.AnonymousName,
+				AnonymousName: v.User.AnonymousName,
+				ImageURL:      v.User.ImageURL,
 			},
 		})
 	}
@@ -170,6 +196,7 @@ func (r *ProfileService) GetAllFollowersService(UserID interface{}) ([]domain.Fo
 		Followers = append(Followers, domain.FollowUserResponse{
 			UserID:        c.Follower.ID,
 			AnonymousName: c.Follower.AnonymousName,
+			ImageURL:      c.Follower.ImageURL,
 			IsFollower:    true,
 			IsFollowing:   isFollowing,
 		})
@@ -200,10 +227,22 @@ func (r *ProfileService) GetAllFollowingService(UserID interface{}) ([]domain.Fo
 		Following = append(Following, domain.FollowUserResponse{
 			UserID:        f.Followed.ID,
 			AnonymousName: f.Followed.AnonymousName,
+			ImageURL:      f.Followed.ImageURL,
 			IsFollowing:   true,
 			IsFollower:    isFollower,
 		})
 	}
 
 	return Following, nil
+}
+
+// -> get user intrests logic
+func (r *ProfileService) GetUserIntrest(userID uint) (interface{}, error) {
+	var user domain.User
+	
+	if err := r.repo.Find(&user, "id = ?", userID, "SelectedSubs"); err != nil {
+		return nil, errors.New("failed to find the user")
+	}
+	
+	return user.SelectedSubs, nil
 }

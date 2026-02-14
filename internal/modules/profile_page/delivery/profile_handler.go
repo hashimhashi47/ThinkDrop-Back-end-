@@ -1,11 +1,13 @@
 package delivery
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"net/http"
+	"strconv"
 	Profileservice "thinkdrop-backend/internal/modules/profile_page/usecase"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type ProfileController struct {
@@ -23,8 +25,10 @@ func (s *ProfileController) ShowProfile(c *fiber.Ctx) error {
 	data, err := s.Service.ShowProfileService(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -44,8 +48,10 @@ func (s *ProfileController) FollowUser(c *fiber.Ctx) error {
 	data1, data2, err := s.Service.FollowUserService(UserID, profileID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -73,8 +79,10 @@ func (s *ProfileController) UserUnfollow(c *fiber.Ctx) error {
 	data1, data2, err := s.Service.UnfollowUser(UserID, profileID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -93,11 +101,29 @@ func (s *ProfileController) UserUnfollow(c *fiber.Ctx) error {
 func (s *ProfileController) GetAllWritings(c *fiber.Ctx) error {
 	UserID, _ := c.Locals("user_id").(uint)
 
-	data, err := s.Service.GetAllWritingsService(UserID)
+	limit, err := strconv.Atoi(c.Query("limit", "10"))
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: "invalid limit",
+		})
+	}
+
+	offset, err := strconv.Atoi(c.Query("offset", "0"))
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			constants.Error: "invalid offset",
+		})
+	}
+
+	data, err := s.Service.GetAllWritingsService(UserID, limit, offset)
+
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -113,8 +139,10 @@ func (s *ProfileController) GetAllFollowers(c *fiber.Ctx) error {
 	data, err := s.Service.GetAllFollowersService(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -130,8 +158,34 @@ func (s *ProfileController) GetFollowings(c *fiber.Ctx) error {
 	data, err := s.Service.GetAllFollowingService(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
+}
+
+// -> get user intrests
+func (s *ProfileController) GetUserIntrest(c *fiber.Ctx) error {
+	userIDAny := c.Locals("user_id")
+	userID, ok := userIDAny.(uint)
+	if !ok || userID == 0 {
+		return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"error": "invalid or missing user id",
+		})
+	}
+
+	data, err := s.Service.GetUserIntrest(userID)
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

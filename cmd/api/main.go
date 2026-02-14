@@ -5,10 +5,13 @@ import (
 	"thinkdrop-backend/internal/config/database"
 	"thinkdrop-backend/internal/config/redis"
 	authmiddileware "thinkdrop-backend/internal/middleware/authMiddileware"
+	"thinkdrop-backend/internal/modules/chat/websocket"
 	"thinkdrop-backend/internal/router"
 	"thinkdrop-backend/migrations"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -21,7 +24,9 @@ func main() {
 	//-> redis conenction
 	Redis := redis.NewRedisClient()
 	authmiddileware.AuthenticateMiddileware(Redis)
-	
+	hub := websocket.NewHub()
+	go hub.Run()
+
 	//-> DB migrations
 	migrations.Migrations(db)
 
@@ -35,6 +40,14 @@ func main() {
 	//->fibre engine
 	app := fiber.New()
 	app.Use(logger.New())
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:5173",
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin, Content-Type, Authorization",
+		AllowCredentials: true,
+		MaxAge:           int((12 * time.Hour).Seconds()),
+	}))
 
 	//->pass the engine and controllers for handling the routes
 	router.UserRoutes(app, Redis, Authcontrollers, InterestControllers)

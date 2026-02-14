@@ -41,8 +41,10 @@ func (s *AuthControllers) UserSignup(c *fiber.Ctx) error {
 	data, err := s.services.UserSignupService(&uservalidate)
 
 	if err != nil {
-		c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -70,8 +72,10 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 	Data, AccessToken, RefershToken, err := s.services.UserLoginService(&validateLogin)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -81,20 +85,20 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Name:     "Access_token",
 		Value:    AccessToken,
 		Path:     "/",
-		Expires:  time.Now().Add(15 * time.Minute),
+		Expires:  time.Now().Add(30 * time.Minute),
 		HTTPOnly: true,
-		Secure:   true,
-		SameSite: fiber.CookieSameSiteStrictMode,
+		Secure:   false,
+		SameSite: fiber.CookieSameSiteLaxMode,
 	})
 
 	c.Cookie(&fiber.Cookie{
-		Name:     "Refersh_token",
+		Name:     "refresh_token",
 		Value:    RefershToken,
 		Path:     "/",
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   true,
-		SameSite: fiber.CookieSameSiteStrictMode,
+		Secure:   false,
+		SameSite: fiber.CookieSameSiteLaxMode,
 	})
 
 	Result := map[string]string{
@@ -106,4 +110,37 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse(Result),
 	})
+}
+
+func (s *AuthControllers) Logout(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+
+	err := s.services.LogoutService(UserID)
+
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "Access_token",
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+	})
+
+	c.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		HTTPOnly: true,
+	})
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse("Logout succesfully"),
+	})
+
 }

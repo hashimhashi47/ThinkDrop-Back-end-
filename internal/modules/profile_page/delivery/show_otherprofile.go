@@ -10,16 +10,20 @@ import (
 
 // -> show the others users profile
 func (s *ProfileController) ShowOtherUserProfile(c *fiber.Ctx) error {
+	UserID, _ := c.Locals("user_id").(uint)
+
 	profileID, err := c.ParamsInt("id")
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	data, err := s.Service.ShowOtherUserProfileService(profileID)
+	data, err := s.Service.ShowOtherUserProfileService(profileID, UserID)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

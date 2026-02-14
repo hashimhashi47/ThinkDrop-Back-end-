@@ -23,8 +23,10 @@ func (s *InterestControllers) ShowIntrests(c *fiber.Ctx) error {
 	interest, err := s.service.ShowIntrestsService()
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -48,8 +50,10 @@ func (s *InterestControllers) UserAddIntersts(c *fiber.Ctx) error {
 	Data, err := s.service.UserAddInterstsService(ID, Req)
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

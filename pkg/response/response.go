@@ -44,12 +44,10 @@ func SuccessResponseMsg(data interface{}, message string) SuccessMsg {
 }
 
 func ErrorMessage(code int, e error) Error {
-
 	errMsg := Error{
 		Status: false,
 		Code:   code,
 		Error:  e.Error(),
 	}
-
 	return errMsg
 }

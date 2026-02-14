@@ -19,12 +19,14 @@ func (r *InterestService) ShowIntrestsService() ([]domain.MainInterest, error) {
 	var interests []domain.MainInterest
 
 	if err := r.repo.GetAll(&interests); err != nil {
-		return nil, errors.New("failed to find intrests")
+		return nil, errors.New("failed to find interests")
 	}
+
 	var response []domain.MainInterest
-	var subs []domain.SubInterest
 
 	for _, v := range interests {
+		var subs []domain.SubInterest // 👈 RESET INSIDE LOOP
+
 		for _, j := range v.SubInterests {
 			subs = append(subs, domain.SubInterest{
 				ID:   j.ID,
@@ -37,8 +39,8 @@ func (r *InterestService) ShowIntrestsService() ([]domain.MainInterest, error) {
 			Name:         v.Name,
 			SubInterests: subs,
 		})
-
 	}
+
 	return response, nil
 }
 

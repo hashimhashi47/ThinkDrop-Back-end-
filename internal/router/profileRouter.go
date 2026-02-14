@@ -18,7 +18,9 @@ func ProfileRoute(app *fiber.App, rds *redis.Client, ProfileController *delivery
 	User.Get("/followings", ProfileController.GetFollowings)
 	User.Get("/followers", ProfileController.GetAllFollowers)
 
+	User.Get("/intrst", ProfileController.GetUserIntrest)
 	User.Get("/:id", ProfileController.ShowOtherUserProfile)
 	User.Post("/follow/:id", ProfileController.FollowUser)
 	User.Post("/unfollow/:id", ProfileController.UserUnfollow)
+	
 }

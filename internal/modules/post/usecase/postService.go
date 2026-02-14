@@ -17,9 +17,10 @@ func NewPostService(r PostDomain.PostRepo) *PostService {
 }
 
 // -> user can upload their post it also have check limit request
-func (r *PostService) AddPostService(Post domain.Post, UserID uint) (domain.Post, error) {
+func (r *PostService) AddPostService(Post domain.CreatePostRequest, UserID uint) (domain.Post, error) {
 	var User domain.User
 	var AddPost domain.Post
+	var subInterests []domain.SubInterest
 
 	if err := r.repo.FindAnything(&User, "id = ?", UserID); err != nil {
 		return domain.Post{}, errors.New("failed to find user")
@@ -35,10 +36,18 @@ func (r *PostService) AddPostService(Post domain.Post, UserID uint) (domain.Post
 		return domain.Post{}, errors.New("try again after 30 seconds")
 	}
 
+	if err := r.repo.FindAll(&subInterests, "id IN ?", Post.InterestIDs); err != nil {
+		return domain.Post{}, errors.New("failed to fetch interests")
+	}
+
+	if len(subInterests) != len(Post.InterestIDs) {
+		return domain.Post{}, errors.New("invalid interest ids")
+	}
+
 	AddPost = domain.Post{
-		Content:       Post.Content,
-		UserID:        UserID,
-		SubInterestID: Post.SubInterestID,
+		Content:      Post.Content,
+		UserID:       UserID,
+		SubInterests: subInterests,
 	}
 
 	if err := r.repo.Insert(&AddPost); err != nil {
@@ -52,21 +61,26 @@ func (r *PostService) AddPostService(Post domain.Post, UserID uint) (domain.Post
 func (r *PostService) ShowPostsServices(userID uint) ([]domain.PostResponse, error) {
 	var posts []domain.Post
 
-	if err := r.repo.FindAnyWithpreload(&posts, "user_id = ?", userID, "SubInterest"); err != nil {
+	if err := r.repo.FindAnyWithpreload(&posts, "user_id = ?", userID, "SubInterests"); err != nil {
 		return nil, err
 	}
 
 	var response []domain.PostResponse
 
 	for _, post := range posts {
+		var interests []string
+
+		for _, v := range post.SubInterests {
+			interests = append(interests, v.Name)
+		}
 		response = append(response, domain.PostResponse{
 			ID:           post.ID,
 			Content:      post.Content,
-			SubInterest:  post.SubInterest.Name,
 			CreatedAt:    post.CreatedAt,
 			UpdatedAt:    post.UpdatedAt,
 			LikeCount:    post.LikeCount,
 			CommentCount: post.CommentCount,
+			SubInterest:  interests,
 		})
 	}
 
@@ -98,18 +112,26 @@ func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.
 	feed := make([]domain.PostFeedResponse, 0, len(AllPosts))
 
 	for _, post := range AllPosts {
+
+		interests := make([]domain.PostInterestDTO, 0)
+
+		for _, si := range post.SubInterests {
+			interests = append(interests, domain.PostInterestDTO{
+				PID:  si.ID,
+				Name: si.Name,
+			})
+		}
+
 		feed = append(feed, domain.PostFeedResponse{
 			ID:        post.ID,
 			Content:   post.Content,
 			CreatedAt: post.CreatedAt,
 			LikeCount: post.LikeCount,
-			Interest: domain.PostInterestDTO{
-				PID:  post.SubInterestID,
-				Name: post.SubInterest.Name,
-			},
+			Interests: interests,
 			User: domain.PostUserDTO{
 				UID:           post.UserID,
 				AnonymousName: post.User.AnonymousName,
+				ImageURL:      post.User.ImageURL,
 			},
 		})
 	}

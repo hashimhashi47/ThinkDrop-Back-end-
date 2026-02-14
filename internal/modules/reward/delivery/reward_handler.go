@@ -29,12 +29,14 @@ func (s *RewardController) GetRewardStatus(c *fiber.Ctx) error {
 	}
 
 	hasWallet, err := s.service.GetRewardStatusService(userID)
+
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
-
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponseMsg(hasWallet, "hasWallet"),
 	})
@@ -47,8 +49,10 @@ func (s *RewardController) CreateWallet(c *fiber.Ctx) error {
 	Data, err := s.service.CreateWalletService(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -64,8 +68,10 @@ func (s *RewardController) GetRewardDetails(c *fiber.Ctx) error {
 	Data, err := s.service.GetRewardDetailsService(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

@@ -11,7 +11,7 @@ import (
 
 // -> Refresh token handler it will handle the 404 situat
 func (s *AuthControllers) RefreshToken(c *fiber.Ctx) error {
-	refreshToken := c.Cookies("Refersh_token")
+	refreshToken := c.Cookies("refresh_token")
 
 	token, err := s.services.RefereshTokenService(refreshToken)
 
@@ -32,9 +32,9 @@ func (s *AuthControllers) RefreshToken(c *fiber.Ctx) error {
 		Name:     "Access_token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   false,
 		Path:     "/",
-		Expires:  time.Now().Add(15 * time.Minute),
+		Expires:  time.Now().Add(30 * time.Minute),
 	})
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})

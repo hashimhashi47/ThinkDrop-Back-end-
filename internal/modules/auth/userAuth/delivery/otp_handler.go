@@ -2,11 +2,11 @@ package delivery
 
 import (
 	"errors"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
 	validator "thinkdrop-backend/pkg/validate"
-	"github.com/gofiber/fiber/v2"
 )
 
 // ->sent OTP Controller
@@ -36,8 +36,10 @@ func (s *AuthControllers) SentOtp(c *fiber.Ctx) error {
 	}
 
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -66,12 +68,15 @@ func (s *AuthControllers) VerfiyOtp(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := s.services.OTPverifyService(VerifyOtp.Email, VerifyOtp.Otp); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+	err := s.services.OTPverifyService(VerifyOtp.Email, VerifyOtp.Otp)
+
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
-
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse("OTP valid upto 5 min"),
 	})

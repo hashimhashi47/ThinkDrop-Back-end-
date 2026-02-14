@@ -21,7 +21,7 @@ func NewPostControllers(s *PostService.PostService) *PostControllers {
 
 // -> Add post controller will bind the deatils and pass to service layer
 func (s *PostControllers) AddPost(c *fiber.Ctx) error {
-	var PostDetails domain.Post
+	var PostDetails domain.CreatePostRequest
 
 	if err := c.BodyParser(&PostDetails); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -33,8 +33,10 @@ func (s *PostControllers) AddPost(c *fiber.Ctx) error {
 	data, err := s.Service.AddPostService(PostDetails, UserID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -56,11 +58,12 @@ func (r *PostControllers) ShowPosts(c *fiber.Ctx) error {
 	data, err := r.Service.ShowPostsServices(UserID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
-
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse(data),
 	})
@@ -90,8 +93,10 @@ func (s *PostControllers) Userfeed(c *fiber.Ctx) error {
 	Data, err := s.Service.UserFeedService(UserID, limit, offset)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -113,8 +118,10 @@ func (s *PostControllers) LikePost(c *fiber.Ctx) error {
 	Data, err := s.Service.LikePostService(UserID, PostID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 
@@ -135,8 +142,10 @@ func (s *PostControllers) UnLikePost(c *fiber.Ctx) error {
 	Data, err := s.Service.UnLikePostService(UserID, PostID)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			constants.Error: response.ErrorMessage(constants.INTERNALSERVERERROR, err),
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
 

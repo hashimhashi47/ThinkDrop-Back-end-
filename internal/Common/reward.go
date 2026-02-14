@@ -3,9 +3,11 @@ package domain
 import "time"
 
 type Wallet struct {
-	ID       uint   `gorm:"primaryKey"`
-	WalletID string `gorm:"uniqueIndex;not null"`
-	UserID   uint   `gorm:"uniqueIndex;not null"`
+	ID            uint   `gorm:"primaryKey"`
+	WalletID      string `gorm:"uniqueIndex;not null"`
+	UserID        uint   `gorm:"uniqueIndex;not null"`
+	BankAccountID *uint
+	BankAccount   *BankAccount `gorm:"foreignKey:BankAccountID"`
 
 	IsWalletActive string `gorm:"default:inactive"`
 
@@ -48,13 +50,20 @@ type Withdrawal struct {
 	BankAccountID uint
 
 	PointsUsed int
-	AmountINR  int // store ₹ or paise (decide once)
 
-	Status string // pending, processing, success, failed
+	AmountINR int64
 
-	RazorpayPayoutID string
-	FailureReason    string
+	Status string
+
+	RazorpayPayoutID string `gorm:"uniqueIndex"`
+
+	UTR           string `gorm:"index"`
+	FailureReason string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type WithdrawPointsRequest struct {
+	Points int64 `json:"points" validate:"required,gt=0"`
 }

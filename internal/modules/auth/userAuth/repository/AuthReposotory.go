@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"thinkdrop-backend/internal/modules/auth/userAuth/domain"
 )
 
 // → Postgres implementation
@@ -21,6 +21,6 @@ func (r *AuthRespository) Insert(model interface{}) error {
 	return r.DB.Create(model).Error
 }
 
-func (r *AuthRespository) FindAnything(model interface{}, Query, Any string) error {
+func (r *AuthRespository) FindAnything(model interface{}, Query, Any interface{}) error {
 	return r.DB.Where(Query, Any).First(model).Error
 }

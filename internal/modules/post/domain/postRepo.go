@@ -7,6 +7,7 @@ import (
 
 type PostRepo interface {
 	FindAnything(model interface{}, Query, Any interface{}) error
+	FindAll(model interface{}, query string, args interface{}) error
 	Insert(model interface{}) error
 	AllowPost(userID uint) (bool, error)
 	FindAnyWithpreload(model interface{}, query string, args interface{}, preloads ...string) error

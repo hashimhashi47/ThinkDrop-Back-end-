@@ -61,3 +61,5 @@ func InitRewards(db *gorm.DB) *RewardDelivery.RewardController {
 	controllers := RewardDelivery.NewRewardController(service)
 	return controllers
 }
+
+
