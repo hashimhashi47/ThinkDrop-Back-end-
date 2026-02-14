@@ -5,7 +5,6 @@ import (
 	"thinkdrop-backend/internal/config/database"
 	"thinkdrop-backend/internal/config/redis"
 	authmiddileware "thinkdrop-backend/internal/middleware/authMiddileware"
-	"thinkdrop-backend/internal/modules/chat/websocket"
 	"thinkdrop-backend/internal/router"
 	"thinkdrop-backend/migrations"
 	"time"
@@ -24,8 +23,6 @@ func main() {
 	//-> redis conenction
 	Redis := redis.NewRedisClient()
 	authmiddileware.AuthenticateMiddileware(Redis)
-	hub := websocket.NewHub()
-	go hub.Run()
 
 	//-> DB migrations
 	migrations.Migrations(db)
