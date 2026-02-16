@@ -153,3 +153,29 @@ func (s *PostControllers) UnLikePost(c *fiber.Ctx) error {
 		constants.Sucess: response.SuccessResponse(Data),
 	})
 }
+
+func (s *PostControllers) ReportPost(c *fiber.Ctx) error {
+	var ReportReqest domain.ReportPostRequest
+	UserID, _ := c.Locals("user_id").(uint)
+
+	if err := c.BodyParser(&ReportReqest); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	Data, err := s.Service.ReportPostService(ReportReqest,UserID)
+
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(Data),
+	})
+
+}

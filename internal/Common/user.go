@@ -18,6 +18,7 @@ type User struct {
 	Verify        bool   `gorm:"false"`
 	Email         string `gorm:"uniqueIndex;not null"`
 	Password      string `gorm:"not null"`
+	Role          string `gorm:"type:varchar(20);default:'user'"`
 
 	ImageURL  string       `json:"image_url" validate:"omitempty,url"`
 	Bio       string       `json:"bio" validate:"omitempty,max=160"`

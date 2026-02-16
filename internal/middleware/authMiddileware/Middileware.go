@@ -1,14 +1,15 @@
 package authmiddileware
 
 import (
+	"os"
+	token "thinkdrop-backend/pkg/jwt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
-	"os"
-	token "thinkdrop-backend/pkg/jwt"
 )
 
-func AuthenticateMiddileware(rds *redis.Client) fiber.Handler {
+func AuthenticateMiddileware(rds *redis.Client, roles ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		AccessToken := c.Cookies("Access_token")
 		KEY := []byte(os.Getenv("JWT_SECRET_KEY"))
@@ -29,6 +30,22 @@ func AuthenticateMiddileware(rds *redis.Client) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 		c.Locals("user_id", claim.UserId)
+		c.Locals("role", claim.Role)
+		// RBAC(Role based access controll)
+		if len(roles) > 0 {
+			allowed := false
+
+			for _, v := range roles {
+				if claim.Role == v {
+					allowed = true
+					break
+				}
+			}
+			if !allowed {
+				return fiber.ErrForbidden
+			}
+		}
 		return c.Next()
+
 	}
 }

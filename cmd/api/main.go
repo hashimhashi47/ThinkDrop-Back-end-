@@ -33,6 +33,8 @@ func main() {
 	PostController := bootstrap.InitPost(db, Redis)
 	ProfileController := bootstrap.InitProfile(db)
 	RewardControllers := bootstrap.InitRewards(db)
+	ChatControllers := bootstrap.InitChat(db)
+	AdminControllers := bootstrap.InitAdmin(db)
 
 	//->fibre engine
 	app := fiber.New()
@@ -52,6 +54,8 @@ func main() {
 	router.PostRoutes(app, PostController, Redis)
 	router.ProfileRoute(app, Redis, ProfileController)
 	router.RewardRoutes(app, Redis, db, RewardControllers)
+	router.ChatRoutes(app, Redis, ChatControllers)
+	router.AdminRoutes(app, Redis, AdminControllers)
 
 	//-> PORT of server
 	app.Listen(":8000")

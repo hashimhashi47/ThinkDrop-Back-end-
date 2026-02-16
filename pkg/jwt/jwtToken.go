@@ -13,11 +13,12 @@ type Claims struct {
 	UserId        uint   `json:"userid"`
 	Email         string `json:"email"`
 	AnonymousName string
+	Role          string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 // -> AccessToken creation including user details and short period for expiring
-func AccessToken(UserID uint, email, AnonumousName string) (string, error) {
+func AccessToken(UserID uint, email, AnonumousName, role string) (string, error) {
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
@@ -27,6 +28,7 @@ func AccessToken(UserID uint, email, AnonumousName string) (string, error) {
 		Email:         email,
 		UserId:        UserID,
 		AnonymousName: AnonumousName,
+		Role:          role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
@@ -39,7 +41,7 @@ func AccessToken(UserID uint, email, AnonumousName string) (string, error) {
 }
 
 // ->  RefershToken creation including user details and Long period for expiring
-func RefershToken(UserID uint, email, anonymousname string) (string, error) {
+func RefershToken(UserID uint, email, anonymousname, role string) (string, error) {
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
@@ -50,6 +52,7 @@ func RefershToken(UserID uint, email, anonymousname string) (string, error) {
 		UserId:        UserID,
 		Email:         email,
 		AnonymousName: anonymousname,
+		Role:          role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),

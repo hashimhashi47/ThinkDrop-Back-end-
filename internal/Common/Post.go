@@ -28,7 +28,9 @@ type Post struct {
 	// Relations
 	Likes    []Like `gorm:"foreignKey:PostID"`
 	Comments []Comment
-	Reports  []Report
+	Reports  []Report `gorm:"foreignKey:PostID"`
+
+	Blocked bool `json:"blocked" gorm:"default:false"`
 }
 
 type Like struct {
@@ -59,7 +61,14 @@ type Report struct {
 	PostID uint
 	UserID uint
 
-	Reason string `gorm:"type:text"`
+	Reason      string `gorm:"type:text"`
+	Description string `gorm:"type:text"`
 
 	CreatedAt time.Time
+}
+
+type ReportPostRequest struct {
+	PostID      uint   `json:"postId"`
+	Reason      string `json:"reason"`
+	Description string `json:"description"`
 }

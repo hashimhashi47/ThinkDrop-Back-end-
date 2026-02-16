@@ -1,8 +1,8 @@
 package domain
 
 import (
-	domain "thinkdrop-backend/internal/Common"
 	"gorm.io/gorm"
+	domain "thinkdrop-backend/internal/Common"
 )
 
 type PostRepo interface {
@@ -17,4 +17,5 @@ type PostRepo interface {
 	DeleteWhere(model interface{}, query string, args ...interface{}) (*gorm.DB, error)
 	Create(model interface{}) error
 	UpdateColumn(model interface{}, query string, id interface{}, column string, value interface{}) error
+	ReportRateLimit(PostID string) (bool, error)
 }

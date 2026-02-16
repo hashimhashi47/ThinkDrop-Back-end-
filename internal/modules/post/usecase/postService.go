@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"strconv"
 	domain "thinkdrop-backend/internal/Common"
 	PostDomain "thinkdrop-backend/internal/modules/post/domain"
 
@@ -173,4 +174,46 @@ func (r *PostService) UnLikePostService(UserID uint, PostID int) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// -> Report post logics
+
+func (s *PostService) ReportPostService(data domain.ReportPostRequest, UserID uint) (interface{}, error) {
+	var Post domain.Post
+	var Report domain.Report
+
+	isOk, err := s.repo.ReportRateLimit(strconv.FormatUint(uint64(data.PostID), 10))
+
+	if err != nil {
+		return "", err
+	}
+
+	if !isOk {
+		return "", errors.New("Request limit exceeded, wait for report again")
+	}
+
+	if err := s.repo.FindAnyWithpreload(&Post, "id = ?", data.PostID, "Reports"); err != nil {
+		return nil, err
+	}
+
+	Report = domain.Report{
+		PostID:      data.PostID,
+		UserID:      UserID,
+		Reason:      data.Reason,
+		Description: data.Description,
+	}
+
+	Post.Reports = append(Post.Reports, Report)
+
+	if err := s.repo.Create(&Report); err != nil {
+		return nil, err
+	}
+
+	if err := s.repo.UpdateColumn(&domain.Post{}, "id = ?", data.PostID, "report_count",
+		gorm.Expr("report_count + ?", 1)); err != nil {
+		return nil, err
+	}
+
+	return Report, nil
+
 }

@@ -83,11 +83,12 @@ func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limi
 		Find(posts).Error
 }
 
-
+// - > save on database
 func (r *PostRepository) Save(model interface{}) error {
 	return r.DB.Save(model).Error
 }
 
+// -> delete with specific query and args
 func (r *PostRepository) DeleteWhere(model interface{}, query string, args ...interface{},
 ) (*gorm.DB, error) {
 	result := r.DB.Where(query, args...).Delete(model)
@@ -99,6 +100,8 @@ func (r *PostRepository) Create(model interface{}) error {
 	return r.DB.Create(model).Error
 }
 
+// -> update a specific column
+
 func (r *PostRepository) UpdateColumn(model interface{}, query string, id interface{}, column string, value interface{},
 ) error {
 
@@ -107,4 +110,24 @@ func (r *PostRepository) UpdateColumn(model interface{}, query string, id interf
 		Where(query, id).
 		UpdateColumn(column, value).
 		Error
+}
+
+func (r *PostRepository) ReportRateLimit(PostID string) (bool, error) {
+	Key := "Report:RateLimit" + PostID
+
+	count, err := r.RDS.Incr(RedisP.Ctx, Key).Result()
+
+	if err != nil {
+		return false, err
+	}
+
+	if count == 1 {
+		r.RDS.Expire(RedisP.Ctx, Key, 60*time.Minute)
+	}
+
+	if count > 3 {
+		return false, nil
+	}
+
+	return true, nil
 }

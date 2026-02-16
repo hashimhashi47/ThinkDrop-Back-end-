@@ -1,9 +1,19 @@
 package bootstrap
 
 import (
+	AdminDelivery "thinkdrop-backend/internal/modules/admin/delivery"
+	AdminRepository "thinkdrop-backend/internal/modules/admin/repository"
+	AdminUsecase "thinkdrop-backend/internal/modules/admin/usecase"
+	AdminHub "thinkdrop-backend/internal/modules/admin/websocket"
+
 	AuthDelivery "thinkdrop-backend/internal/modules/auth/userAuth/delivery"
 	AuthRepository "thinkdrop-backend/internal/modules/auth/userAuth/repository"
 	AuthUsecase "thinkdrop-backend/internal/modules/auth/userAuth/usecase"
+
+	ChatDelivery "thinkdrop-backend/internal/modules/chat/delivery"
+	ChatRepository "thinkdrop-backend/internal/modules/chat/repository"
+	ChatUsecase "thinkdrop-backend/internal/modules/chat/usecase"
+	ChatHub "thinkdrop-backend/internal/modules/chat/websocket"
 
 	ProfileDelivery "thinkdrop-backend/internal/modules/profile_page/delivery"
 	ProfileRepository "thinkdrop-backend/internal/modules/profile_page/repository"
@@ -62,4 +72,18 @@ func InitRewards(db *gorm.DB) *RewardDelivery.RewardController {
 	return controllers
 }
 
+func InitChat(db *gorm.DB) *ChatDelivery.ChatHandler {
+	repo := ChatRepository.NewChatRepository(db)
+	service := ChatUsecase.NewChatService(repo)
+	hub := ChatHub.NewHub()
+	go hub.Run()
+	return ChatDelivery.NewChatHandler(service, hub)
+}
 
+func InitAdmin(db *gorm.DB) *AdminDelivery.AdminController {
+	repo := AdminRepository.NewAdminRepository(db)
+	adminHub := AdminHub.NewHub()
+	go adminHub.Run()
+	Service := AdminUsecase.NewAdminService(repo, adminHub)
+	return AdminDelivery.NewAdminController(Service, adminHub)
+}

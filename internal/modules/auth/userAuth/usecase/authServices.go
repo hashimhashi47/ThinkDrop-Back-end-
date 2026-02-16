@@ -58,13 +58,13 @@ func (r *AuthService) UserLoginService(UserLoginCredential *domain.Login) (user 
 		return domain.User{}, "", "", errors.New("Invalid password")
 	}
 
-	Accesstoken, err := jwt.AccessToken(userDetails.ID, user.Email, user.AnonymousName)
+	Accesstoken, err := jwt.AccessToken(userDetails.ID, user.Email, user.AnonymousName, userDetails.Role)
 
 	if err != nil {
 		return domain.User{}, "", "", errors.New("Failed to Create AccessToken")
 	}
 
-	RefereshToken, err := jwt.RefershToken(userDetails.ID, user.Email, user.AnonymousName)
+	RefereshToken, err := jwt.RefershToken(userDetails.ID, user.Email, user.AnonymousName, userDetails.Role)
 
 	if err != nil {
 		return domain.User{}, "", "", errors.New("Failed to Create RefershToken")

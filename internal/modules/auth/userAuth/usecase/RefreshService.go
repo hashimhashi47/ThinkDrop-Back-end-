@@ -32,7 +32,7 @@ func (r *AuthService) RefereshTokenService(RefereshToken string) (string, error)
 		return "", constants.ErrTokenMismatch
 	}
 
-	NewAccestoken, _ := Pjwt.AccessToken(claim.UserId, claim.Email, claim.AnonymousName)
+	NewAccestoken, _ := Pjwt.AccessToken(claim.UserId, claim.Email, claim.AnonymousName, claim.Role)
 
 	return NewAccestoken, nil
 }

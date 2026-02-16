@@ -3,13 +3,14 @@ package router
 import (
 	authmiddileware "thinkdrop-backend/internal/middleware/authMiddileware"
 	"thinkdrop-backend/internal/modules/profile_page/delivery"
+	"thinkdrop-backend/pkg/constants"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
 )
 
 func ProfileRoute(app *fiber.App, rds *redis.Client, ProfileController *delivery.ProfileController) {
-	User := app.Group("/users", authmiddileware.AuthenticateMiddileware(rds))
+	User := app.Group("/users", authmiddileware.AuthenticateMiddileware(rds, constants.User))
 
 	User.Get("/avatars", ProfileController.GetAvatars)
 	User.Put("/updateprofile", ProfileController.EditProfile)
@@ -22,5 +23,5 @@ func ProfileRoute(app *fiber.App, rds *redis.Client, ProfileController *delivery
 	User.Get("/:id", ProfileController.ShowOtherUserProfile)
 	User.Post("/follow/:id", ProfileController.FollowUser)
 	User.Post("/unfollow/:id", ProfileController.UserUnfollow)
-	
+
 }
