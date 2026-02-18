@@ -28,13 +28,13 @@ func main() {
 	migrations.Migrations(db)
 
 	//-> the autentication initing happens here
+	AdminControllers, Adminservice := bootstrap.InitAdmin(db)
 	Authcontrollers := bootstrap.InitAuth(db, Redis)
 	InterestControllers := bootstrap.InitInterest(db)
-	PostController := bootstrap.InitPost(db, Redis)
+	PostController := bootstrap.InitPost(db, Redis, Adminservice)
 	ProfileController := bootstrap.InitProfile(db)
-	RewardControllers := bootstrap.InitRewards(db)
+	RewardControllers := bootstrap.InitRewards(db, Adminservice)
 	ChatControllers := bootstrap.InitChat(db)
-	AdminControllers := bootstrap.InitAdmin(db)
 
 	//->fibre engine
 	app := fiber.New()
