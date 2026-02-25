@@ -46,5 +46,7 @@ func (r *ProfileService) EditProfileService(UserID uint, UserInputs domain.EditP
 		ProfileAvatar: User.ImageURL,
 	}
 
+	Userdata, _, _ := r.AdminService.GetUsersDetailService(10, 0)
+	r.AdminService.Broadcast("users", "UPDATE_USER", Userdata)
 	return response, nil
 }

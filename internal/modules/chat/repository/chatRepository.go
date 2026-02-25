@@ -49,3 +49,24 @@ func (r *chatRepository) SaveMessage(message *domain.Message) error {
 func (r *chatRepository) FindAll(model interface{}, query string, args ...interface{}) error {
 	return r.db.Where(query, args...).Find(model).Error
 }
+
+func (r *chatRepository) FindConversationByID(id uint) (*domain.Conversation, error) {
+	var convo domain.Conversation
+	if err := r.db.First(&convo, id).Error; err != nil {
+		return nil, err
+	}
+	return &convo, nil
+}
+
+func (r *chatRepository) GetMessagesByConversation(convoID uint, limit, offset int) ([]domain.Message, error) {
+	var messages []domain.Message
+
+	err := r.db.
+		Where("conversation_id = ?", convoID).
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&messages).Error
+
+	return messages, err
+}

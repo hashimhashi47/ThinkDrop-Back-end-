@@ -19,6 +19,7 @@ type User struct {
 	Email         string `gorm:"uniqueIndex;not null"`
 	Password      string `gorm:"not null"`
 	Role          string `gorm:"type:varchar(20);default:'user'"`
+	IsBlocked     bool   `gorn:"default:false"`
 
 	ImageURL  string       `json:"image_url" validate:"omitempty,url"`
 	Bio       string       `json:"bio" validate:"omitempty,max=160"`

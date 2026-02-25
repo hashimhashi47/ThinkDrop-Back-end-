@@ -77,6 +77,7 @@ func (r *PostRepository) FindFeedPosts(posts *[]Commom.Post, subIDs []uint, limi
 		Where("psi.sub_interest_id IN ?", subIDs).
 		Preload("User").
 		Preload("SubInterests").
+		Preload("Likes").
 		Order("posts.created_at DESC").
 		Limit(limit).
 		Offset(offset).
@@ -130,4 +131,37 @@ func (r *PostRepository) ReportRateLimit(PostID string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (r *PostRepository) UpdateUserWalletByPostID(postID uint, points int) error {
+	return r.DB.Transaction(func(tx *gorm.DB) error {
+
+		var post Commom.Post
+		if err := tx.Select("user_id").First(&post, postID).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&Commom.Wallet{}).
+			Where("user_id = ?", post.UserID).
+			Update("points_available", gorm.Expr("points_available + ?", points)).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (r *PostRepository) FindLikeByUserID(userID uint, postID uint) (bool, error) {
+	var count int64
+
+	err := r.DB.
+		Model(&Commom.Like{}).
+		Where("user_id = ? AND post_id = ?", userID, postID).
+		Count(&count).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }

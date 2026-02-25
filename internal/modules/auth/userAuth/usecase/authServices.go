@@ -4,6 +4,7 @@ import (
 	"errors"
 	domain "thinkdrop-backend/internal/Common"
 	Redis "thinkdrop-backend/internal/config/redis"
+	AdminUsecase "thinkdrop-backend/internal/modules/admin/usecase"
 	AuthDomain "thinkdrop-backend/internal/modules/auth/userAuth/domain"
 	hashpass "thinkdrop-backend/pkg/hashPass"
 	"thinkdrop-backend/pkg/jwt"
@@ -15,12 +16,13 @@ import (
 // → Auth business rules (services)
 
 type AuthService struct {
-	repo AuthDomain.AuthRepo
-	rds  *redis.Client
+	repo         AuthDomain.AuthRepo
+	rds          *redis.Client
+	AdminService AdminUsecase.AdminService
 }
 
-func NewUserService(r AuthDomain.AuthRepo, rd *redis.Client) *AuthService {
-	return &AuthService{repo: r, rds: rd}
+func NewUserService(r AuthDomain.AuthRepo, rd *redis.Client, As AdminUsecase.AdminService) *AuthService {
+	return &AuthService{repo: r, rds: rd, AdminService: As}
 }
 
 // -> User Signup service bussiness logics
@@ -43,6 +45,8 @@ func (r *AuthService) UserSignupService(userDetails *domain.UserValidate) (user 
 		return nil, errors.New("Signup failed")
 	}
 
+	Userdata, _, _ := r.AdminService.GetUsersDetailService(10, 0)
+	r.AdminService.Broadcast("users", "UPDATE_USER", Userdata)
 	return User, nil
 
 }
@@ -64,7 +68,7 @@ func (r *AuthService) UserLoginService(UserLoginCredential *domain.Login) (user 
 		return domain.User{}, "", "", errors.New("Failed to Create AccessToken")
 	}
 
-	RefereshToken, err := jwt.RefershToken(userDetails.ID, user.Email, user.AnonymousName, userDetails.Role)
+	RefereshToken, err := jwt.RefershToken(userDetails.ID, user.Email,user.AnonymousName, userDetails.Role)
 
 	if err != nil {
 		return domain.User{}, "", "", errors.New("Failed to Create RefershToken")

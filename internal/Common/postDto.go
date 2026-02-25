@@ -8,14 +8,19 @@ type PostFeedResponse struct {
 	Content   string    `json:"content"`
 	CreatedAt time.Time `json:"created_at"`
 
-	LikeCount int `json:"like_count"`
+	LikeCount   int  `json:"like_count"`
+	ReportCount int  `json:"report_count"`
+	IsBlocked   bool `json:"isblocked"`
+
+	IsUserIsLiked bool `json:"isliked"`
 
 	Interests []PostInterestDTO `json:"interests"`
 	User      PostUserDTO       `json:"user"`
 }
 
 type PostUserDTO struct {
-	UID           uint   `json:"id"`
+	UID           uint `json:"id"`
+	Name          string
 	AnonymousName string `json:"anonymous_name"`
 	ImageURL      string `json:"avatarurl"`
 }

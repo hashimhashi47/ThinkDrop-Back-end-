@@ -34,7 +34,8 @@ func (s *AuthControllers) RefreshToken(c *fiber.Ctx) error {
 		HTTPOnly: true,
 		Secure:   false,
 		Path:     "/",
-		Expires:  time.Now().Add(30 * time.Minute),
+		Expires:  time.Now().Add(10 * time.Minute),
+		SameSite: "Lax",
 	})
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})

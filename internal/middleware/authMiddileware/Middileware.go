@@ -1,6 +1,7 @@
 package authmiddileware
 
 import (
+	"log"
 	"os"
 	token "thinkdrop-backend/pkg/jwt"
 
@@ -31,6 +32,7 @@ func AuthenticateMiddileware(rds *redis.Client, roles ...string) fiber.Handler {
 		}
 		c.Locals("user_id", claim.UserId)
 		c.Locals("role", claim.Role)
+		log.Println(claim.Role)
 		// RBAC(Role based access controll)
 		if len(roles) > 0 {
 			allowed := false

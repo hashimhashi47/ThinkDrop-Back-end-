@@ -173,7 +173,7 @@ func (s *PostControllers) ReportPost(c *fiber.Ctx) error {
 			constants.Error: response.ErrorMessage(status, err),
 		})
 	}
-
+	
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse(Data),
 	})

@@ -85,10 +85,10 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Name:     "Access_token",
 		Value:    AccessToken,
 		Path:     "/",
-		Expires:  time.Now().Add(30 * time.Minute),
+		Expires:  time.Now().Add(10 * time.Minute),
 		HTTPOnly: true,
 		Secure:   false,
-		SameSite: fiber.CookieSameSiteLaxMode,
+		SameSite: "Lax",
 	})
 
 	c.Cookie(&fiber.Cookie{
@@ -98,13 +98,14 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 		HTTPOnly: true,
 		Secure:   false,
-		SameSite: fiber.CookieSameSiteLaxMode,
+		SameSite: "Lax",
 	})
 
 	Result := map[string]string{
 		"Email":       Data.Email,
 		"Name":        Data.FullName,
 		"AccessToken": AccessToken,
+		"Role":        Data.Role,
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{

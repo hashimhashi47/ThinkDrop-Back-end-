@@ -3,15 +3,17 @@ package usecase
 import (
 	"errors"
 	domain "thinkdrop-backend/internal/Common"
+	AdminUsecase "thinkdrop-backend/internal/modules/admin/usecase"
 	ProfileDomain "thinkdrop-backend/internal/modules/profile_page/domain"
 )
 
 type ProfileService struct {
-	repo ProfileDomain.ProfileRepo
+	repo         ProfileDomain.ProfileRepo
+	AdminService AdminUsecase.AdminService
 }
 
-func NewProfileService(r ProfileDomain.ProfileRepo) *ProfileService {
-	return &ProfileService{repo: r}
+func NewProfileService(r ProfileDomain.ProfileRepo, as AdminUsecase.AdminService) *ProfileService {
+	return &ProfileService{repo: r, AdminService: as}
 }
 
 // -> show the own user details
@@ -147,27 +149,29 @@ func (r *ProfileService) GetAllWritingsService(UserID uint, limit, offset int) (
 	var Posts []domain.PostFeedResponse
 
 	for _, v := range posts {
-
-		// collect interests
-		interests := make([]domain.PostInterestDTO, 0, len(v.SubInterests))
-		for _, si := range v.SubInterests {
-			interests = append(interests, domain.PostInterestDTO{
-				PID:  si.ID,
-				Name: si.Name,
+		if !v.Blocked {
+			// collect interests
+			interests := make([]domain.PostInterestDTO, 0, len(v.SubInterests))
+			for _, si := range v.SubInterests {
+				interests = append(interests, domain.PostInterestDTO{
+					PID:  si.ID,
+					Name: si.Name,
+				})
+			}
+			Posts = append(Posts, domain.PostFeedResponse{
+				ID:        v.ID,
+				Content:   v.Content,
+				CreatedAt: v.CreatedAt,
+				LikeCount: v.LikeCount,
+				Interests: interests,
+				User: domain.PostUserDTO{
+					UID:           v.UserID,
+					Name:          v.User.FullName,
+					AnonymousName: v.User.AnonymousName,
+					ImageURL:      v.User.ImageURL,
+				},
 			})
 		}
-		Posts = append(Posts, domain.PostFeedResponse{
-			ID:        v.ID,
-			Content:   v.Content,
-			CreatedAt: v.CreatedAt,
-			LikeCount: v.LikeCount,
-			Interests: interests,
-			User: domain.PostUserDTO{
-				UID:           v.UserID,
-				AnonymousName: v.User.AnonymousName,
-				ImageURL:      v.User.ImageURL,
-			},
-		})
 	}
 
 	return Posts, nil
@@ -239,10 +243,10 @@ func (r *ProfileService) GetAllFollowingService(UserID interface{}) ([]domain.Fo
 // -> get user intrests logic
 func (r *ProfileService) GetUserIntrest(userID uint) (interface{}, error) {
 	var user domain.User
-	
+
 	if err := r.repo.Find(&user, "id = ?", userID, "SelectedSubs"); err != nil {
 		return nil, errors.New("failed to find the user")
 	}
-	
+
 	return user.SelectedSubs, nil
 }

@@ -9,7 +9,8 @@ type Wallet struct {
 	BankAccountID *uint
 	BankAccount   *BankAccount `gorm:"foreignKey:BankAccountID"`
 
-	IsWalletActive string `gorm:"default:inactive"`
+	IsWalletActive  string `gorm:"default:inactive"`
+	IsWalletBlocked bool   `gorm:"default:false"`
 
 	PointsAvailable int `gorm:"default:0"`
 	TotalLikes      int `gorm:"default:0"`

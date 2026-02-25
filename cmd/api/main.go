@@ -29,10 +29,10 @@ func main() {
 
 	//-> the autentication initing happens here
 	AdminControllers, Adminservice := bootstrap.InitAdmin(db)
-	Authcontrollers := bootstrap.InitAuth(db, Redis)
+	Authcontrollers := bootstrap.InitAuth(db, Redis, Adminservice)
 	InterestControllers := bootstrap.InitInterest(db)
 	PostController := bootstrap.InitPost(db, Redis, Adminservice)
-	ProfileController := bootstrap.InitProfile(db)
+	ProfileController := bootstrap.InitProfile(db, Adminservice)
 	RewardControllers := bootstrap.InitRewards(db, Adminservice)
 	ChatControllers := bootstrap.InitChat(db)
 

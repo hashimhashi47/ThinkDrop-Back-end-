@@ -2,10 +2,10 @@ package usecase
 
 import (
 	"errors"
+	"log"
 	"thinkdrop-backend/internal/utils"
 	genrateotp "thinkdrop-backend/pkg/genrateOTP"
 )
-
 
 // -> OTP generate busniess logics
 func (r *AuthService) SentOtpService(email string) (OTP string, err error) {
@@ -21,6 +21,7 @@ func (r *AuthService) SentOtpService(email string) (OTP string, err error) {
 	}
 
 	RandOTP := genrateotp.GenerateOTP()
+	log.Print("OTP:", RandOTP)
 
 	if err := utils.SentOTPEmail(email, RandOTP); err != nil {
 		return "", err

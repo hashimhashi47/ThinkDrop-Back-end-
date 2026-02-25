@@ -31,18 +31,10 @@ type IncomingMessage struct {
 	Content    string `json:"content"`
 }
 
-func (h *ChatHandler) HandleWS(c *websocket.Conn) {
-
-	userIDStr := c.Query("user_id")
-	userID64, err := strconv.ParseUint(userIDStr, 10, 64)
-	if err != nil {
-		log.Println("invalid user_id")
-		return
-	}
-	userID := uint(userID64)
-
+func (h *ChatHandler) HandleWS(c *websocket.Conn,UserID uint) {
+	log.Println(UserID)
 	client := &ws.Client{
-		UserID: userID,
+		UserID: UserID,
 		Conn:   c,
 		Send:   make(chan interface{}, 256),
 		Hub:    h.Hub,
@@ -88,4 +80,44 @@ func (h *ChatHandler) GetChats(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse(data),
 	})
+}
+
+func (h *ChatHandler) GetChatMessages(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uint)
+
+	convoIDStr := c.Params("id")
+	convoID64, err := strconv.ParseUint(convoIDStr, 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid conversation id"})
+	}
+	convoID := uint(convoID64)
+
+	limit, _ := strconv.Atoi(c.Query("limit", "20"))
+	offset, _ := strconv.Atoi(c.Query("offset", "0"))
+
+	data, err := h.Service.GetMessages(userID, convoID, limit, offset)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(data)
+}
+
+func (h *ChatHandler) StartConversation(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uint)
+
+	var body struct {
+		ReceiverID uint `json:"receiver_id"`
+	}
+
+	if err := c.BodyParser(&body); err != nil {
+		return err
+	}
+
+	convo, err := h.Service.StartConversation(userID, body.ReceiverID)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(convo)
 }

@@ -16,7 +16,7 @@ type Post struct {
 
 	// Foreign Keys
 	UserID uint
-	User   User `gorm:"foreignKey:UserID"`
+	User   User `gorm:"constraint:OnDelete:CASCADE;"`
 
 	SubInterests []SubInterest `gorm:"many2many:post_sub_interests;"`
 
@@ -26,9 +26,9 @@ type Post struct {
 	ReportCount  int `gorm:"default:0"`
 
 	// Relations
-	Likes    []Like `gorm:"foreignKey:PostID"`
-	Comments []Comment
-	Reports  []Report `gorm:"foreignKey:PostID"`
+	Likes    []Like    `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE;"`
+	Comments []Comment `gorm:"constraint:OnDelete:CASCADE;"`
+	Reports  []Report  `gorm:"foreignKey:PostID;constraint:OnDelete:CASCADE;"`
 
 	Blocked bool `json:"blocked" gorm:"default:false"`
 }
@@ -38,6 +38,8 @@ type Like struct {
 
 	UserID uint `gorm:"not null;uniqueIndex:idx_user_post"`
 	PostID uint `gorm:"not null;uniqueIndex:idx_user_post"`
+
+	Post Post `gorm:"constraint:OnDelete:CASCADE;"`
 
 	CreatedAt time.Time
 }
@@ -49,7 +51,7 @@ type Comment struct {
 	Content string `gorm:"type:text;not null"`
 
 	PostID uint
-	Post   Post
+	Post   Post `gorm:"constraint:OnDelete:CASCADE;"`
 
 	UserID uint
 	User   User
@@ -61,8 +63,11 @@ type Report struct {
 	PostID uint
 	UserID uint
 
+	Post Post `gorm:"constraint:OnDelete:CASCADE;"`
+
 	Reason      string `gorm:"type:text"`
 	Description string `gorm:"type:text"`
+	ActionTaken bool   `gorm:"default:false"`
 
 	CreatedAt time.Time
 }

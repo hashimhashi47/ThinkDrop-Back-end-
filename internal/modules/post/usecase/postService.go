@@ -4,17 +4,19 @@ import (
 	"errors"
 	"strconv"
 	domain "thinkdrop-backend/internal/Common"
+	"thinkdrop-backend/internal/modules/admin/usecase"
 	PostDomain "thinkdrop-backend/internal/modules/post/domain"
 
 	"gorm.io/gorm"
 )
 
 type PostService struct {
-	repo PostDomain.PostRepo
+	repo         PostDomain.PostRepo
+	adminService usecase.AdminService
 }
 
-func NewPostService(r PostDomain.PostRepo) *PostService {
-	return &PostService{repo: r}
+func NewPostService(r PostDomain.PostRepo, aS usecase.AdminService) *PostService {
+	return &PostService{repo: r, adminService: aS}
 }
 
 // -> user can upload their post it also have check limit request
@@ -37,13 +39,19 @@ func (r *PostService) AddPostService(Post domain.CreatePostRequest, UserID uint)
 		return domain.Post{}, errors.New("try again after 30 seconds")
 	}
 
-	if err := r.repo.FindAll(&subInterests, "id IN ?", Post.InterestIDs); err != nil {
-		return domain.Post{}, errors.New("failed to fetch interests")
+	if Post.InterestIDs != nil {
+		if err := r.repo.FindAll(&subInterests, "id IN ?", Post.InterestIDs); err != nil {
+			return domain.Post{}, errors.New("failed to fetch interests")
+		}
+
+		if len(subInterests) != len(Post.InterestIDs) {
+			return domain.Post{}, errors.New("invalid interest ids")
+		}
 	}
 
-	if len(subInterests) != len(Post.InterestIDs) {
-		return domain.Post{}, errors.New("invalid interest ids")
-	}
+	subInterests = append(subInterests, domain.SubInterest{
+		ID: 37,
+	})
 
 	AddPost = domain.Post{
 		Content:      Post.Content,
@@ -54,6 +62,11 @@ func (r *PostService) AddPostService(Post domain.CreatePostRequest, UserID uint)
 	if err := r.repo.Insert(&AddPost); err != nil {
 		return domain.Post{}, errors.New("Failed to post your Blog")
 	}
+
+	dashboardData, _ := r.adminService.GetdashboardDetailsService()
+	PostData, _, _ := r.adminService.GetAllusersPostService(10, 0)
+	r.adminService.Broadcast("posts", "UPDATE_POST", PostData)
+	r.adminService.Broadcast("dashboard", "UPDATE", dashboardData)
 
 	return AddPost, nil
 }
@@ -123,12 +136,15 @@ func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.
 			})
 		}
 
+		ok, _ := r.repo.FindLikeByUserID(User.ID, post.ID)
+
 		feed = append(feed, domain.PostFeedResponse{
-			ID:        post.ID,
-			Content:   post.Content,
-			CreatedAt: post.CreatedAt,
-			LikeCount: post.LikeCount,
-			Interests: interests,
+			ID:            post.ID,
+			Content:       post.Content,
+			CreatedAt:     post.CreatedAt,
+			LikeCount:     post.LikeCount,
+			Interests:     interests,
+			IsUserIsLiked: ok,
 			User: domain.PostUserDTO{
 				UID:           post.UserID,
 				AnonymousName: post.User.AnonymousName,
@@ -146,14 +162,29 @@ func (r *PostService) LikePostService(UserID uint, PostID int) (bool, error) {
 		PostID: uint(PostID),
 	}
 
+	var post domain.Post
+
+	if err := r.repo.FindAnything(&post, "id = ?", PostID); err != nil {
+		return false, errors.New("failed to find the post")
+	}
+
 	if err := r.repo.Create(&Like); err != nil {
 		return false, errors.New("already liked the post")
+	}
+
+	if err := r.repo.UpdateUserWalletByPostID(post.ID, 2); err != nil {
+		return false, errors.New("failed to update wallet points")
 	}
 
 	if err := r.repo.UpdateColumn(&domain.Post{}, "id = ?", PostID, "like_count",
 		gorm.Expr("like_count + 1")); err != nil {
 		return false, err
 	}
+
+	likedata, _, _ := r.adminService.GetWithdrawalsService(10, 0)
+	walletdata, _ := r.adminService.GetWalletsService(10, 0)
+	r.adminService.Broadcast("accounts", "UPDATE_ACCOUNT", likedata)
+	r.adminService.Broadcast("wallets", "UPDATE_WALLET", walletdata)
 	return true, nil
 }
 
@@ -162,6 +193,12 @@ func (r *PostService) UnLikePostService(UserID uint, PostID int) (bool, error) {
 	result, err := r.repo.DeleteWhere(&domain.Like{}, "user_id = ? AND post_id = ?", UserID, PostID)
 	if err != nil {
 		return false, err
+	}
+
+	var post domain.Post
+
+	if err := r.repo.FindAnything(&post, "id = ?", PostID); err != nil {
+		return false, errors.New("failed to find the post")
 	}
 
 	if result.RowsAffected == 0 {
@@ -173,6 +210,14 @@ func (r *PostService) UnLikePostService(UserID uint, PostID int) (bool, error) {
 		return false, err
 	}
 
+	if err := r.repo.UpdateUserWalletByPostID(post.ID, -2); err != nil {
+		return false, errors.New("failed to update wallet points")
+	}
+
+	likedata, _, _ := r.adminService.GetWithdrawalsService(10, 0)
+	walletdata, _ := r.adminService.GetWalletsService(10, 0)
+	r.adminService.Broadcast("accounts", "UPDATE_ACCOUNT", likedata)
+	r.adminService.Broadcast("wallets", "UPDATE_WALLET", walletdata)
 	return true, nil
 }
 
@@ -214,6 +259,12 @@ func (s *PostService) ReportPostService(data domain.ReportPostRequest, UserID ui
 		return nil, err
 	}
 
+	// -> wesocket update
+	dashboardData, _ := s.adminService.GetdashboardDetailsService()
+	PostData, _, _ := s.adminService.GetAllusersPostService(10, 0)
+	ReportData, _ := s.adminService.GetAllFlagedPostService(10, 0)
+	s.adminService.Broadcast("dashboard", "UPDATE", dashboardData)
+	s.adminService.Broadcast("posts", "UPDATE_POST", PostData)
+	s.adminService.Broadcast("reports", "UPDATE_REPORT", ReportData)
 	return Report, nil
-
 }

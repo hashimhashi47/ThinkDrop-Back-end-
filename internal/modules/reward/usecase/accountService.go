@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 	domain "thinkdrop-backend/internal/Common"
@@ -147,6 +148,8 @@ func (r *RewardService) GetWithdrawalsService(UserID uint, limit, offset int) ([
 		return nil, errors.New("failed to find the withdrawals")
 	}
 
+	AccountData, _ := r.AdminService.AddAccountStatusService()
+	r.AdminService.Broadcast("accounts", "UPDATE_ACCOUNTS", AccountData)
 	return withdrawals, nil
 }
 
@@ -185,5 +188,9 @@ func (r *RewardService) GetWithdrawalsRefershService(UserID uint, limit, offset 
 			}
 		}
 	}
+
+	AccountData, _ := r.AdminService.AddAccountStatusService()
+	fmt.Println(AccountData)
+	r.AdminService.Broadcast("accounts", "UPDATE_ACCOUNTS", AccountData)
 	return withdrawals, nil
 }

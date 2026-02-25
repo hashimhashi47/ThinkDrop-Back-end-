@@ -67,3 +67,28 @@ func (s *ChatService) Getallchat(userID uint) ([]domain.Conversation, error) {
 	
 	return Conversation, nil
 }
+
+func (s *ChatService) GetMessages(userID, convoID uint, limit, offset int) ([]domain.Message, error) {
+
+	// optional security check
+	convo, err := s.repo.FindConversationByID(convoID)
+	if err != nil {
+		return nil, err
+	}
+
+	if convo.User1ID != userID && convo.User2ID != userID {
+		return nil, errors.New("unauthorized")
+	}
+
+	return s.repo.GetMessagesByConversation(convoID, limit, offset)
+}
+
+func (s *ChatService) StartConversation(user1, user2 uint) (*domain.Conversation, error) {
+
+	convo, err := s.repo.FindConversation(user1, user2)
+	if err == nil {
+		return convo, nil
+	}
+
+	return s.repo.CreateConversation(user1, user2)
+}

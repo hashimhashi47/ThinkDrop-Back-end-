@@ -18,4 +18,6 @@ type PostRepo interface {
 	Create(model interface{}) error
 	UpdateColumn(model interface{}, query string, id interface{}, column string, value interface{}) error
 	ReportRateLimit(PostID string) (bool, error)
+	UpdateUserWalletByPostID(postID uint, points int) error
+	FindLikeByUserID(userID uint, postID uint) (bool, error)
 }

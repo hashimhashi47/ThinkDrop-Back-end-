@@ -3,17 +3,19 @@ package usecase
 import (
 	"errors"
 	domain "thinkdrop-backend/internal/Common"
+	AdminUsecase "thinkdrop-backend/internal/modules/admin/usecase"
 	RewardDomain "thinkdrop-backend/internal/modules/reward/domain"
 	"thinkdrop-backend/pkg/constants"
 	walletid "thinkdrop-backend/pkg/walletID"
 )
 
 type RewardService struct {
-	repo RewardDomain.RewardRepo
+	repo         RewardDomain.RewardRepo
+	AdminService AdminUsecase.AdminService
 }
 
-func NewRewardService(r RewardDomain.RewardRepo) *RewardService {
-	return &RewardService{repo: r}
+func NewRewardService(r RewardDomain.RewardRepo, AS AdminUsecase.AdminService) *RewardService {
+	return &RewardService{repo: r, AdminService: AS}
 }
 
 // -> wallet status chechking
@@ -66,6 +68,7 @@ func (r *RewardService) GetRewardDetailsService(UserID uint) (domain.Wallet, err
 	for _, v := range User.Posts {
 		totalLike += v.LikeCount
 	}
+
 
 	wallet.TotalLikes = totalLike
 

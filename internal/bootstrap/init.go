@@ -37,9 +37,9 @@ import (
 
 // ->Init the auth service to pass the connections from database to controllers
 
-func InitAuth(db *gorm.DB, rds *redis.Client) *AuthDelivery.AuthControllers {
+func InitAuth(db *gorm.DB, rds *redis.Client, adminService *AdminUsecase.AdminService) *AuthDelivery.AuthControllers {
 	repo := AuthRepository.NewPostgresAuthRepo(db, rds)
-	service := AuthUsecase.NewUserService(repo, rds)
+	service := AuthUsecase.NewUserService(repo, rds, *adminService)
 	controllers := AuthDelivery.NewUserController(service)
 	return controllers
 }
@@ -51,23 +51,23 @@ func InitInterest(db *gorm.DB) *InterestDelivery.InterestControllers {
 	return controllers
 }
 
-func InitPost(db *gorm.DB, rds *redis.Client) *PostDelivery.PostControllers {
+func InitPost(db *gorm.DB, rds *redis.Client, adminService *AdminUsecase.AdminService) *PostDelivery.PostControllers {
 	repo := PostRepository.NewPostRepository(db, rds)
-	service := PostUsecase.NewPostService(repo)
+	service := PostUsecase.NewPostService(repo, *adminService)
 	controllers := PostDelivery.NewPostControllers(service)
 	return controllers
 }
 
-func InitProfile(db *gorm.DB) *ProfileDelivery.ProfileController {
+func InitProfile(db *gorm.DB, adminService *AdminUsecase.AdminService) *ProfileDelivery.ProfileController {
 	repo := ProfileRepository.NewProfileRepository(db)
-	service := ProfileUsecase.NewProfileService(repo)
+	service := ProfileUsecase.NewProfileService(repo, *adminService)
 	controllers := ProfileDelivery.NewProfileControllers(service)
 	return controllers
 }
 
-func InitRewards(db *gorm.DB) *RewardDelivery.RewardController {
+func InitRewards(db *gorm.DB, adminService *AdminUsecase.AdminService) *RewardDelivery.RewardController {
 	repo := RewardRepository.NewRewardRepository(db)
-	service := RewardUsecase.NewRewardService(repo)
+	service := RewardUsecase.NewRewardService(repo, *adminService)
 	controllers := RewardDelivery.NewRewardController(service)
 	return controllers
 }
@@ -80,10 +80,10 @@ func InitChat(db *gorm.DB) *ChatDelivery.ChatHandler {
 	return ChatDelivery.NewChatHandler(service, hub)
 }
 
-func InitAdmin(db *gorm.DB) *AdminDelivery.AdminController {
+func InitAdmin(db *gorm.DB) (*AdminDelivery.AdminController, *AdminUsecase.AdminService) {
 	repo := AdminRepository.NewAdminRepository(db)
 	adminHub := AdminHub.NewHub()
 	go adminHub.Run()
 	Service := AdminUsecase.NewAdminService(repo, adminHub)
-	return AdminDelivery.NewAdminController(Service, adminHub)
+	return AdminDelivery.NewAdminController(Service, adminHub), Service
 }
