@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"thinkdrop-backend/internal/bootstrap"
 	"thinkdrop-backend/internal/config/database"
 	"thinkdrop-backend/internal/config/redis"
@@ -16,6 +17,8 @@ import (
 
 // → App entry point (starts server)
 func main() {
+
+	port := os.Getenv("PORT")
 
 	//->database connection
 	db := database.Connection()
@@ -57,6 +60,10 @@ func main() {
 	router.ChatRoutes(app, Redis, ChatControllers)
 	router.AdminRoutes(app, Redis, AdminControllers)
 
-	//-> PORT of server
-	app.Listen(":8000")
+	if port == "" {
+		port = "8000"
+	}
+
+	app.Listen(":" + port)
+
 }

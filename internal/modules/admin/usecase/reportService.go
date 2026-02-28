@@ -63,3 +63,23 @@ func (a *AdminService) SafePostingService(PostID int) (interface{}, error) {
 
 	return post, nil
 }
+
+func (a *AdminService) GetAllComplaintsService(limit, offset int) (interface{}, int, error) {
+	var complaint []domain.ReportComplaints
+
+	Total, _ := a.repo.Count(&domain.ReportComplaints{})
+	if err := a.repo.FindAllWithOnePreload(&complaint, limit, offset, "User"); err != nil {
+		return nil, 0, err
+	}
+
+	return complaint, int(Total), nil
+}
+
+func (a *AdminService) ConsiderTheIssueService(Postid int, Req DomainAdmin.UpdateComplaintStatusRequest) error {
+
+	if err := a.repo.UpdateColumn(&domain.ReportComplaints{}, "id = ?", Postid,
+		"Status", Req.Status); err != nil {
+		return errors.New("failed to accept the post")
+	}
+	return nil
+}

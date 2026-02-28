@@ -14,10 +14,13 @@ var DB *gorm.DB
 // -> Make gorm connection with GORM to database
 func Connection() *gorm.DB {
 
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Fatal("❌ Error loading .env file")
-	}
+	// err := godotenv.Load("../../.env")
+	// if err != nil {
+	// 	log.Fatal("❌ Error loading .env file")
+	// }
+	var err error
+
+	_ = godotenv.Load()
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
@@ -35,6 +38,8 @@ func Connection() *gorm.DB {
 	if err != nil {
 		log.Fatal("failed to connect database", err)
 	}
+	sqlDB, _ := DB.DB()
+	fmt.Println(sqlDB.Stats())
 
 	fmt.Print("Database integerted succesfully✅")
 

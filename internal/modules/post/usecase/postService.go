@@ -50,7 +50,7 @@ func (r *PostService) AddPostService(Post domain.CreatePostRequest, UserID uint)
 	}
 
 	subInterests = append(subInterests, domain.SubInterest{
-		ID: 37,
+		ID: 1,
 	})
 
 	AddPost = domain.Post{
@@ -126,31 +126,32 @@ func (r *PostService) UserFeedService(userID uint, limit, offset int) ([]domain.
 	feed := make([]domain.PostFeedResponse, 0, len(AllPosts))
 
 	for _, post := range AllPosts {
+		if !post.Blocked {
+			interests := make([]domain.PostInterestDTO, 0)
 
-		interests := make([]domain.PostInterestDTO, 0)
+			for _, si := range post.SubInterests {
+				interests = append(interests, domain.PostInterestDTO{
+					PID:  si.ID,
+					Name: si.Name,
+				})
+			}
 
-		for _, si := range post.SubInterests {
-			interests = append(interests, domain.PostInterestDTO{
-				PID:  si.ID,
-				Name: si.Name,
+			ok, _ := r.repo.FindLikeByUserID(User.ID, post.ID)
+
+			feed = append(feed, domain.PostFeedResponse{
+				ID:            post.ID,
+				Content:       post.Content,
+				CreatedAt:     post.CreatedAt,
+				LikeCount:     post.LikeCount,
+				Interests:     interests,
+				IsUserIsLiked: ok,
+				User: domain.PostUserDTO{
+					UID:           post.UserID,
+					AnonymousName: post.User.AnonymousName,
+					ImageURL:      post.User.ImageURL,
+				},
 			})
 		}
-
-		ok, _ := r.repo.FindLikeByUserID(User.ID, post.ID)
-
-		feed = append(feed, domain.PostFeedResponse{
-			ID:            post.ID,
-			Content:       post.Content,
-			CreatedAt:     post.CreatedAt,
-			LikeCount:     post.LikeCount,
-			Interests:     interests,
-			IsUserIsLiked: ok,
-			User: domain.PostUserDTO{
-				UID:           post.UserID,
-				AnonymousName: post.User.AnonymousName,
-				ImageURL:      post.User.ImageURL,
-			},
-		})
 	}
 	return feed, nil
 }

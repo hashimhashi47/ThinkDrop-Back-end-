@@ -12,9 +12,12 @@ import (
 var Ctx = context.Background()
 
 func NewRedisClient() *redis.Client {
-	Adress := os.Getenv("REDIS_ADDRESS")
+	address := os.Getenv("REDIS_ADDRESS")
+	if address == "" {
+		log.Fatal("REDIS_ADDRESS not set")
+	}
 	rdb := redis.NewClient(&redis.Options{
-		Addr: Adress,
+		Addr: address,
 	})
 
 	if err := rdb.Ping(Ctx).Err(); err != nil {

@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"thinkdrop-backend/pkg/constants"
+	"time"
+)
 
 type ProfilePage struct {
 	AnonymousName  string
@@ -12,7 +15,7 @@ type ProfilePage struct {
 }
 
 type ProfileResponseDTO struct {
-	AnonymousName string      `json:"anonymous_name"`
+	AnonymousName string       `json:"anonymous_name"`
 	WritingsCount int          `json:"writings_count"`
 	Bio           string       `json:"bio"`
 	ImageURL      string       `json:"avatarurl"`
@@ -52,10 +55,15 @@ func MapUserToProfile(u User) UserProfileResponse {
 }
 
 type FollowUserResponse struct {
-	UserID        uint    `json:"user_id"`
+	UserID        uint   `json:"user_id"`
 	AnonymousName string `json:"anonymous_name"`
-	ImageURL      string  `json:"avatarurl"`
+	ImageURL      string `json:"avatarurl"`
 
 	IsFollowing bool `json:"is_following"` // I follow them
 	IsFollower  bool `json:"is_follower"`  // They follow me
+}
+
+type CreateReportRequest struct {
+	Type        constants.ReportType `json:"type" validate:"required"`
+	Description string               `json:"description" validate:"required"`
 }

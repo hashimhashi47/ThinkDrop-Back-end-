@@ -69,7 +69,6 @@ func (r *RewardService) GetRewardDetailsService(UserID uint) (domain.Wallet, err
 		totalLike += v.LikeCount
 	}
 
-
 	wallet.TotalLikes = totalLike
 
 	return wallet, nil

@@ -37,6 +37,10 @@ func (r *Repository) Find(model interface{}) error {
 	return r.DB.Find(model).Error
 }
 
+func (r *Repository) FindAllWithOnePreload(model interface{}, limit, offset int, preload string) error {
+	return r.DB.Limit(limit).Offset(offset).Preload(preload).Order("created_at DESC").Find(model).Error
+}
+
 func (r *Repository) FindWithoutPreload(model interface{}, limit, offset int) error {
 	return r.DB.Limit(limit).Offset(offset).Order("created_at DESC").Find(model).Error
 }

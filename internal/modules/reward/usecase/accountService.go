@@ -136,6 +136,10 @@ func (r *RewardService) WithdrawPointsService(UserID uint, WithdrawPoints int64)
 		return nil, err
 	}
 
+	AccountData, _ := r.AdminService.AddAccountStatusService()
+	fmt.Println(AccountData)
+	r.AdminService.Broadcast("accounts", "UPDATE_ACCOUNTS", AccountData)
+
 	return Data, nil
 }
 
@@ -149,7 +153,9 @@ func (r *RewardService) GetWithdrawalsService(UserID uint, limit, offset int) ([
 	}
 
 	AccountData, _ := r.AdminService.AddAccountStatusService()
+	WalletData, _ := r.AdminService.GetWalletsService(10, 0)
 	r.AdminService.Broadcast("accounts", "UPDATE_ACCOUNTS", AccountData)
+	r.AdminService.Broadcast("wallets", "UPDATE_WALLETS", WalletData)
 	return withdrawals, nil
 }
 

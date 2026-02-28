@@ -47,3 +47,8 @@ type CreateSubInterestRequest struct {
 type UpdatePostInterestRequest struct {
 	InterestIDs []string `json:"interest_ids"`
 }
+
+
+type UpdateComplaintStatusRequest struct {
+	Status string `json:"status" binding:"required"` 
+}

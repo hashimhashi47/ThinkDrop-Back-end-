@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"gorm.io/gorm"
+	"log"
 	domain "thinkdrop-backend/internal/Common"
 	Domain "thinkdrop-backend/internal/modules/chat/domain"
+
+	"gorm.io/gorm"
 )
 
 type chatRepository struct {
@@ -12,6 +14,23 @@ type chatRepository struct {
 
 func NewChatRepository(db *gorm.DB) Domain.ChatRepository {
 	return &chatRepository{db: db}
+}
+
+func (r *chatRepository) GetAnonymousName(userID uint) (*domain.UserMini, error) {
+	var user domain.UserMini
+
+	err := r.db.
+		Model(&domain.User{}).
+		Select("anonymous_name,image_url").
+		Where("id = ?", userID).
+		Scan(&user).Error
+
+	if err != nil {
+		return nil, err
+	}
+	log.Println("data",user)
+
+	return &user, nil
 }
 
 func (r *chatRepository) FindConversation(user1, user2 uint) (*domain.Conversation, error) {
@@ -29,10 +48,15 @@ func (r *chatRepository) FindConversation(user1, user2 uint) (*domain.Conversati
 	return &convo, nil
 }
 
-func (r *chatRepository) CreateConversation(user1, user2 uint) (*domain.Conversation, error) {
+func (r *chatRepository) CreateConversation(user1, user2 uint, username1, user1image,
+	username2, user2image string) (*domain.Conversation, error) {
 	convo := domain.Conversation{
-		User1ID: user1,
-		User2ID: user2,
+		User1ID:       user1,
+		User2ID:       user2,
+		User1NAME:     username1,
+		User2NAME:     username2,
+		User1ImageUrl: user1image,
+		User2ImageUrl: user2image,
 	}
 
 	if err := r.db.Create(&convo).Error; err != nil {

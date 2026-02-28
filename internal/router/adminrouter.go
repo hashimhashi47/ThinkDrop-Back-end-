@@ -25,8 +25,10 @@ func AdminRoutes(app *fiber.App, rds *redis.Client, adminModule *delivery.AdminC
 	admin.Get("/getaccountstats", adminModule.AddAccountStatus)
 	admin.Get("/getaccounts", adminModule.GetWithdrawals)
 	admin.Get("/getuserdetails", adminModule.GetUsersDetail)
+
 	admin.Post("/block-user/:id", adminModule.BlockUser)
 	admin.Post("/unblock-user/:id", adminModule.UnBlockUser)
+
 	admin.Get("/getflagedpost", adminModule.GetAllFlagedPost)
 	admin.Get("/getwallets", adminModule.GetWallets)
 	admin.Post("/block-wallet/:id", adminModule.BlockWallet)
@@ -48,8 +50,11 @@ func AdminRoutes(app *fiber.App, rds *redis.Client, adminModule *delivery.AdminC
 	admin.Delete("/deletesubinterest/:id", adminModule.DeleteSubIntrest)
 
 	admin.Post("/block-post/:id", adminModule.BlockPost)
-	admin.Post("/unblock-user/:id", adminModule.UnBlockPost)
+	admin.Post("/unblock-post/:id", adminModule.UnBlockPost)
 	admin.Put("/updatepostinterest/:id", adminModule.UpdatePostIntrests)
+
+	admin.Get("/complaints", adminModule.GetAllComplaints)
+	admin.Put("/complaints/:id", adminModule.ConsiderTheIssue)
 
 	// WebSocket route
 	app.Get("/admin/ws", websocket.New(adminModule.Handle))

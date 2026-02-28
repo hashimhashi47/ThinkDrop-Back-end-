@@ -22,6 +22,15 @@ var (
 	ErrRefreshTokenStoreFail  = "failed to store refresh token"
 )
 
+type ReportType string
+
+const (
+	ReportBug       ReportType = "bug"
+	ReportTechnical ReportType = "technical"
+	ReportOther     ReportType = "other"
+)
+
+
 // WalletStatus
 const (
 	WalletActive   = "active"

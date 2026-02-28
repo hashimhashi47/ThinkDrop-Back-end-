@@ -18,33 +18,34 @@ func ChatRoutes(app *fiber.App, rds *redis.Client, chatModule *delivery.ChatHand
 	//web socket route for connecting
 	app.Get("/ws/chat", websocket.New(func(c *websocket.Conn) {
 
-    token := c.Query("token")
-    if token == "" {
-        token = c.Cookies("Access_token")
-    }
+		token := c.Query("token")
+		log.Println("🕹️Log", token)
+		if token == "" {
+			token = c.Cookies("Access_token")
+			log.Println("🕹️Log", token)
+		}
+		log.Println("🕹️Log", token)
+		if token == "" {
+			log.Println("token missing")
+			c.Close()
+			return
+		}
 
-    if token == "" {
-        log.Println("token missing")
-        c.Close()
-        return
-    }
+		KEY := []byte(os.Getenv("JWT_SECRET_KEY"))
 
-    KEY := []byte(os.Getenv("JWT_SECRET_KEY"))
+		claim := &Token.Claims{}
+		parsedToken, err := jwt.ParseWithClaims(token, claim, func(t *jwt.Token) (interface{}, error) {
+			return KEY, nil
+		})
 
-    claim := &Token.Claims{}
-    parsedToken, err := jwt.ParseWithClaims(token, claim, func(t *jwt.Token) (interface{}, error) {
-        return KEY, nil
-    })
+		if err != nil || !parsedToken.Valid {
+			log.Println("invalid token:", err)
+			c.Close()
+			return
+		}
 
-    if err != nil || !parsedToken.Valid {
-        log.Println("invalid token:", err)
-        c.Close()
-        return
-    }
-
-    chatModule.HandleWS(c, claim.UserId)
-}))
-
+		chatModule.HandleWS(c, claim.UserId)
+	}))
 
 	//http routes
 	app.Get("/ws/getsidebar", authmiddileware.AuthenticateMiddileware(rds), chatModule.GetChats)
@@ -54,6 +55,7 @@ func ChatRoutes(app *fiber.App, rds *redis.Client, chatModule *delivery.ChatHand
 		authmiddileware.AuthenticateMiddileware(rds),
 		chatModule.GetChatMessages)
 
+		
 	//to start a particular chat
 	app.Post("/ws/conversation",
 		authmiddileware.AuthenticateMiddileware(rds),

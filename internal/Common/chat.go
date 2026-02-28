@@ -12,10 +12,17 @@ type Message struct {
 }
 
 type Conversation struct {
-	ID        uint
-	User1ID   uint
-	User2ID   uint
-	CreatedAt time.Time
+	ID            uint
+	User1ID       uint
+	User1NAME     string
+	User1ImageUrl string
+	User2ID       uint
+	User2NAME     string
+	User2ImageUrl string
+	CreatedAt     time.Time
 }
 
-
+type UserMini struct {
+	AnonymousName string
+	ImageURL      string
+}

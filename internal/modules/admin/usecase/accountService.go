@@ -40,7 +40,6 @@ func (a *AdminService) AddAccountStatusService() (interface{}, error) {
 	}
 
 	return response, nil
-
 }
 
 // -> logic for get all transaction logic

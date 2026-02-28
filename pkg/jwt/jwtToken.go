@@ -1,12 +1,10 @@
 package jwt
 
 import (
-	"log"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 type Claims struct {
@@ -19,10 +17,6 @@ type Claims struct {
 
 // -> AccessToken creation including user details and short period for expiring
 func AccessToken(UserID uint, email, AnonumousName, role string) (string, error) {
-	if err := godotenv.Load("../../.env"); err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
-
 	Key := []byte(os.Getenv("JWT_SECRET_KEY"))
 	claim := Claims{
 		Email:         email,
@@ -42,10 +36,6 @@ func AccessToken(UserID uint, email, AnonumousName, role string) (string, error)
 
 // ->  RefershToken creation including user details and Long period for expiring
 func RefershToken(UserID uint, email, anonymousname, role string) (string, error) {
-	if err := godotenv.Load("../../.env"); err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
-
 	Key := []byte(os.Getenv("JWT_SECRET_KEY"))
 
 	claim := Claims{

@@ -14,4 +14,5 @@ type AdminRepo interface {
 	Delete(model interface{}, query string, arg interface{}) error
 	Insert(model interface{}) error
 	DeletePostWithRelations(postID uint) error
+	FindAllWithOnePreload(model interface{}, limit, offset int, preload string) error
 }

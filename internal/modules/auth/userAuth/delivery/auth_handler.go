@@ -85,7 +85,7 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Name:     "Access_token",
 		Value:    AccessToken,
 		Path:     "/",
-		Expires:  time.Now().Add(10 * time.Minute),
+		Expires:  time.Now().Add(1 * time.Hour),
 		HTTPOnly: true,
 		Secure:   false,
 		SameSite: "Lax",

@@ -15,15 +15,20 @@ func main() {
 	db := database.DB
 
 	hashed, _ := hashpass.GenerateHashedPassword(password)
+	var existing domain.User
+	err := db.Where("email = ?", "admin@gmail.com").First(&existing).Error
 
-	admin := domain.User{
-		FullName: "admin",
-		Verify:   true,
-		Email:    "admin@gmail.com",
-		Password: hashed,
-		Role:     constants.Admin,
+	if err != nil {
+		admin := domain.User{
+			FullName: "admin",
+			Verify:   true,
+			Email:    "admin@gmail.com",
+			Password: hashed,
+			Role:     constants.Admin,
+		}
+		db.Create(&admin)
+		fmt.Println("Admin created ✅")
+	} else {
+		fmt.Println("Admin already exists ⚡")
 	}
-
-	db.Create(&admin)
-	fmt.Println("worked✅")
 }

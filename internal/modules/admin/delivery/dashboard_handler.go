@@ -8,6 +8,7 @@ import (
 	"thinkdrop-backend/internal/modules/admin/websocket"
 	"thinkdrop-backend/pkg/constants"
 	"thinkdrop-backend/pkg/response"
+	validator "thinkdrop-backend/pkg/validate"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -655,5 +656,58 @@ func (a *AdminController) UpdatePostIntrests(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse("upadted intrest of posts"),
+	})
+}
+
+func (C *AdminController) GetAllComplaints(c *fiber.Ctx) error {
+
+	limit, _ := strconv.Atoi(c.Query("limit", "10"))
+	offset, _ := strconv.Atoi(c.Query("offset", "0"))
+
+	data, total, err := C.service.GetAllComplaintsService(limit, offset)
+
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: fiber.Map{
+			"data":  data,
+			"total": total,
+		},
+	})
+
+}
+
+func (a *AdminController) ConsiderTheIssue(c *fiber.Ctx) error {
+	PostID, _ := c.ParamsInt("id")
+	var request domain.UpdateComplaintStatusRequest
+
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := validator.Validate.Struct(request); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := a.service.ConsiderTheIssueService(PostID,request); err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse("Approved the bug/feedback or reqests"),
 	})
 }
