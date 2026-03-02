@@ -58,7 +58,7 @@ func (s *ChatService) SendMessage(senderID, receiverID uint, content string) (*d
 
 func (s *ChatService) Getallchat(userID uint) ([]domain.OtherUserDTO, error) {
 	var conversations []domain.Conversation
-	// Get all conversations where this user is involved
+
 	if err := s.repo.FindAll(&conversations, "user1_id = ? OR user2_id = ?", userID, userID); err != nil {
 		return nil, err
 	}
@@ -67,7 +67,6 @@ func (s *ChatService) Getallchat(userID uint) ([]domain.OtherUserDTO, error) {
 
 	for _, conv := range conversations {
 		var otherUser domain.User
-		// Determine which one is the "other" user
 		var otherUserID uint
 		if conv.User1ID != userID {
 			otherUserID = conv.User1ID
@@ -75,7 +74,6 @@ func (s *ChatService) Getallchat(userID uint) ([]domain.OtherUserDTO, error) {
 			otherUserID = conv.User2ID
 		}
 
-		// Fetch the other user's details
 		if err := s.repo.FindAll(&otherUser, "id = ?", otherUserID); err != nil {
 			return nil, errors.New("failed to find the other user")
 		}
