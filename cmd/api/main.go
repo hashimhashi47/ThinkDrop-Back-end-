@@ -19,6 +19,9 @@ import (
 func main() {
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
 
 	//->database connection
 	db := database.Connection()
@@ -60,10 +63,8 @@ func main() {
 	router.ChatRoutes(app, Redis, ChatControllers)
 	router.AdminRoutes(app, Redis, AdminControllers)
 
-	if port == "" {
-		port = "8000"
+	if err := app.Listen(":" + port); err != nil {
+		panic(err)
 	}
-
-	app.Listen(":" + port)
 
 }
