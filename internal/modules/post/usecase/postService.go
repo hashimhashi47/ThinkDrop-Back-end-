@@ -173,7 +173,7 @@ func (r *PostService) LikePostService(UserID uint, PostID int) (bool, error) {
 		return false, errors.New("already liked the post")
 	}
 
-	if err := r.repo.UpdateUserWalletByPostID(post.ID, 2); err != nil {
+	if err := r.repo.UpdateUserWalletByPostID(post.ID, 1000); err != nil { //points increased
 		return false, errors.New("failed to update wallet points")
 	}
 
@@ -211,7 +211,7 @@ func (r *PostService) UnLikePostService(UserID uint, PostID int) (bool, error) {
 		return false, err
 	}
 
-	if err := r.repo.UpdateUserWalletByPostID(post.ID, -2); err != nil {
+	if err := r.repo.UpdateUserWalletByPostID(post.ID, -1000); err != nil { //points reduces
 		return false, errors.New("failed to update wallet points")
 	}
 
