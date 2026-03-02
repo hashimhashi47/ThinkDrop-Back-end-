@@ -32,10 +32,10 @@ func (s *AuthControllers) RefreshToken(c *fiber.Ctx) error {
 		Name:     "Access_token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   false,
+		Secure:   true,
 		Path:     "/",
 		Expires:  time.Now().Add(1 * time.Hour),
-		SameSite: "Lax",
+		SameSite: "None",
 	})
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"token": token})

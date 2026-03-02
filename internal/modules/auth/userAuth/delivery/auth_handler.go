@@ -87,8 +87,8 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Path:     "/",
 		Expires:  time.Now().Add(1 * time.Hour),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,   // Changed from false to true
+		SameSite: "None", // Changed from "Lax" to "None"
 	})
 
 	c.Cookie(&fiber.Cookie{
@@ -97,8 +97,8 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Path:     "/",
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,   // Changed from false to true
+		SameSite: "None", // Changed from "Lax" to "None"
 	})
 
 	Result := map[string]string{
