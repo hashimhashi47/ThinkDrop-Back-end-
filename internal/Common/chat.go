@@ -22,6 +22,9 @@ type Conversation struct {
 	CreatedAt     time.Time
 }
 
+
+
+
 type UserMini struct {
 	AnonymousName string
 	ImageURL      string

@@ -56,33 +56,41 @@ func (s *ChatService) SendMessage(senderID, receiverID uint, content string) (*d
 	return message, nil
 }
 
-func (s *ChatService) Getallchat(userID uint) ([]domain.Conversation, error) {
-	var Conversation []domain.Conversation
-
-	if err := s.repo.FindAll(&Conversation, "user1_id = ? OR user2_id = ?", userID, userID); err != nil {
+func (s *ChatService) Getallchat(userID uint) ([]domain.OtherUserDTO, error) {
+	var conversations []domain.Conversation
+	// Get all conversations where this user is involved
+	if err := s.repo.FindAll(&conversations, "user1_id = ? OR user2_id = ?", userID, userID); err != nil {
 		return nil, err
 	}
 
-	var Users []domain.User
+	var result []domain.OtherUserDTO
 
-	for _, v := range Conversation {
-
-		if v.User1ID != userID {
-			if err := s.repo.FindAll(&Users, "id = ?", v.User1ID); err != nil {
-				return nil, errors.New("failed to find the users")
-			}
+	for _, conv := range conversations {
+		var otherUser domain.User
+		// Determine which one is the "other" user
+		var otherUserID uint
+		if conv.User1ID != userID {
+			otherUserID = conv.User1ID
+		} else {
+			otherUserID = conv.User2ID
 		}
 
-		if v.User2ID != userID {
-			if err := s.repo.FindAll(&Users, "id = ?", v.User2ID); err != nil {
-				return nil, errors.New("failed to find the users")
-			}
+		// Fetch the other user's details
+		if err := s.repo.FindAll(&otherUser, "id = ?", otherUserID); err != nil {
+			return nil, errors.New("failed to find the other user")
 		}
 
+		result = append(result, domain.OtherUserDTO{
+			ConversationID: conv.ID,
+			UserID:         otherUser.ID,
+			UserName:       otherUser.AnonymousName,
+			UserImageUrl:   otherUser.ImageURL,
+			CreatedAt:      conv.CreatedAt,
+		})
 	}
-	return Conversation, nil
-}
 
+	return result, nil
+}
 func (s *ChatService) GetMessages(userID, convoID uint, limit, offset int) ([]domain.Message, error) {
 
 	// optional security check
