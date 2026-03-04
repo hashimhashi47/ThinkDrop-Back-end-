@@ -35,7 +35,6 @@ func NewRedisClient() *redis.Client {
 	redisURL := os.Getenv("REDIS_URL")
 
 	if redisURL != "" {
-		// 🔥 Production mode (Upstash / Render Redis)
 		opt, err := redis.ParseURL(redisURL)
 		if err != nil {
 			log.Fatalf("Invalid Redis URL: %v", err)
@@ -44,7 +43,6 @@ func NewRedisClient() *redis.Client {
 		rdb = redis.NewClient(opt)
 
 	} else {
-		// 🛠 Local development mode (docker-compose)
 		address := os.Getenv("REDIS_ADDRESS")
 		if address == "" {
 			log.Fatal("REDIS_ADDRESS not set")

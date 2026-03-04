@@ -699,7 +699,7 @@ func (a *AdminController) ConsiderTheIssue(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := a.service.ConsiderTheIssueService(PostID,request); err != nil {
+	if err := a.service.ConsiderTheIssueService(PostID, request); err != nil {
 		status := response.StatusFromError(err)
 
 		return c.Status(status).JSON(fiber.Map{
@@ -709,5 +709,87 @@ func (a *AdminController) ConsiderTheIssue(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		constants.Sucess: response.SuccessResponse("Approved the bug/feedback or reqests"),
+	})
+}
+
+// -> admin can create the roles
+func (a *AdminController) CreateRole(c *fiber.Ctx) error {
+	var InputRole domain.CreateRoleRequest
+
+	if err := c.BodyParser(&InputRole); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := validator.Validate.Struct(InputRole); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := a.service.CreateRoleService(InputRole); err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse("role added sucessfully"),
+	})
+}
+
+func (a *AdminController) GetRoles(c *fiber.Ctx) error {
+	data, err := a.service.GetRolesService()
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
+}
+
+func (a *AdminController) GetPermisison(c *fiber.Ctx) error {
+	data, err := a.service.GetPermissionsService()
+	if err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse(data),
+	})
+}
+
+func (a *AdminController) UpdateRoles(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id")
+	var roleData domain.UpdateRoleInput
+
+	if err := c.BodyParser(&roleData); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(constants.BADREQUEST, err),
+		})
+	}
+
+	if err := a.service.UpdateRolesService(id,roleData); err != nil {
+		status := response.StatusFromError(err)
+
+		return c.Status(status).JSON(fiber.Map{
+			constants.Error: response.ErrorMessage(status, err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		constants.Sucess: response.SuccessResponse("successfully updated"),
 	})
 }

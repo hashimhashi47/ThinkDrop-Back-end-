@@ -48,7 +48,23 @@ type UpdatePostInterestRequest struct {
 	InterestIDs []string `json:"interest_ids"`
 }
 
-
 type UpdateComplaintStatusRequest struct {
-	Status string `json:"status" binding:"required"` 
+	Status string `json:"status" binding:"required"`
+}
+
+
+type Role struct {
+	ID          uint         `gorm:"primaryKey"`
+	Name        string       `gorm:"size:50;unique;not null"`
+	Permissions []Permission `gorm:"many2many:role_permissions;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type Permission struct {
+	ID        uint   `gorm:"primaryKey"`
+	Slug      string `gorm:"size:100;unique;not null;index"`
+	Name      string `gorm:"size:100;not null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

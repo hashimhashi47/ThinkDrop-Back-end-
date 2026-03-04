@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	domain "thinkdrop-backend/internal/Common"
+	AdminDomain "thinkdrop-backend/internal/modules/admin/domain"
 )
 
 // -> enitre migrations happens here
@@ -25,6 +26,8 @@ func Migrations(db *gorm.DB) {
 		domain.Message{},
 		domain.Conversation{},
 		domain.ReportComplaints{},
+		AdminDomain.Role{},
+		AdminDomain.Permission{},
 	)
 	if err != nil {
 		log.Fatal("Migration error", err)

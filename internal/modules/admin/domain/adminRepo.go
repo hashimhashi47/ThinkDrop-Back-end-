@@ -15,4 +15,6 @@ type AdminRepo interface {
 	Insert(model interface{}) error
 	DeletePostWithRelations(postID uint) error
 	FindAllWithOnePreload(model interface{}, limit, offset int, preload string) error
+	FindPreload(model interface{}, preload string) error
+	ReplaceRolePermissions(roleID uint, permissionIDs []uint) error
 }

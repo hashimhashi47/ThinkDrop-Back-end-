@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"thinkdrop-backend/cmd/seed"
 	"thinkdrop-backend/internal/bootstrap"
 	"thinkdrop-backend/internal/config/database"
 	"thinkdrop-backend/internal/config/redis"
@@ -26,6 +27,11 @@ func main() {
 	//->database connection
 	db := database.Connection()
 
+	// -> seed
+	seed.CreateAdmin(db)
+	seed.CreatePermission(db)
+	seed.AdminPersmission(db)
+
 	//-> redis conenction
 	Redis := redis.NewRedisClient()
 	authmiddileware.AuthenticateMiddileware(Redis)
@@ -47,7 +53,7 @@ func main() {
 	app.Use(logger.New())
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://thinkdrop-nu.vercel.app",
+		AllowOrigins:     "https://thinkdrop-nu.vercel.app,http://localhost:5173",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin, Content-Type, Authorization",
 		AllowCredentials: true,

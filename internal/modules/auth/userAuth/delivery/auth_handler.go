@@ -69,7 +69,7 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		})
 	}
 
-	Data, AccessToken, RefershToken, err := s.services.UserLoginService(&validateLogin)
+	Data, AccessToken, RefershToken, Role, err := s.services.UserLoginService(&validateLogin)
 
 	if err != nil {
 		status := response.StatusFromError(err)
@@ -87,8 +87,8 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Path:     "/",
 		Expires:  time.Now().Add(1 * time.Hour),
 		HTTPOnly: true,
-		Secure:   true,   // Changed from false to true
-		SameSite: "None", // Changed from "Lax" to "None"
+		Secure:   true,   
+		SameSite: "None", 
 	})
 
 	c.Cookie(&fiber.Cookie{
@@ -97,19 +97,20 @@ func (s *AuthControllers) UserLogin(c *fiber.Ctx) error {
 		Path:     "/",
 		Expires:  time.Now().Add(7 * 24 * time.Hour),
 		HTTPOnly: true,
-		Secure:   true,   // Changed from false to true
-		SameSite: "None", // Changed from "Lax" to "None"
+		Secure:   true,  
+		SameSite: "None", 
 	})
 
-	Result := map[string]string{
-		"Email":       Data.Email,
-		"Name":        Data.FullName,
-		"AccessToken": AccessToken,
-		"Role":        Data.Role,
+	reponse := domain.LoginResponse{
+		Email:       Data.Email,
+		Name:        Data.FullName,
+		AccessToken: AccessToken,
+		Role:        Data.Role,
+		Permissions: Role,
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
-		constants.Sucess: response.SuccessResponse(Result),
+		constants.Sucess: response.SuccessResponse(reponse),
 	})
 }
 

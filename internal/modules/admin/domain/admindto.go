@@ -53,3 +53,13 @@ type AdminProfile struct {
 	CreatedAt time.Time
 	ImageURL  string `json:"avatarurl"`
 }
+
+type CreateRoleRequest struct {
+	Name string `json:"name" validate:"required,min=3"`
+}
+
+
+type UpdateRoleInput struct {
+    Name        string   `json:"name"`
+    Permissions []uint `json:"permissions"`
+}

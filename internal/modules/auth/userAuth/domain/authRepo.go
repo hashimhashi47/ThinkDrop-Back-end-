@@ -8,4 +8,5 @@ type AuthRepo interface {
 	RateLimitOTP(email string) (bool, error)
 	DeleteOTP(email string) error
 	GetOTP(email string) (OTP string, err error)
+	FindAnythingProload(model interface{}, Query, Any interface{}) error
 }

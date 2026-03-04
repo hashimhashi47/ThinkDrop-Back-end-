@@ -4,11 +4,6 @@ import (
 	authmiddileware "thinkdrop-backend/internal/middleware/authMiddileware"
 	"thinkdrop-backend/internal/modules/admin/delivery"
 	"thinkdrop-backend/pkg/constants"
-
-	// "thinkdrop-backend/pkg/constants"
-
-	// "thinkdrop-backend/pkg/constants"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
 	"github.com/redis/go-redis/v9"
@@ -17,7 +12,17 @@ import (
 func AdminRoutes(app *fiber.App, rds *redis.Client, adminModule *delivery.AdminController) {
 
 	// Create admin group with middleware
-	admin := app.Group("/admin", authmiddileware.AuthenticateMiddileware(rds, constants.Admin))
+	admin := app.Group("/admin", authmiddileware.AuthenticateMiddileware(rds,
+		constants.Admin,
+		constants.RoleSuperAdmin,
+		constants.RoleManager,
+		constants.RoleSupervisor,
+		constants.RoleModerator,
+		constants.RoleStaff,
+		constants.RoleCoStaff,
+		constants.RoleSupport,
+		constants.RoleAccountant,
+		constants.RoleAuditor))
 
 	// HTTP route
 	admin.Get("/getstats", adminModule.GetdashboardDetails)
@@ -55,6 +60,11 @@ func AdminRoutes(app *fiber.App, rds *redis.Client, adminModule *delivery.AdminC
 
 	admin.Get("/complaints", adminModule.GetAllComplaints)
 	admin.Put("/complaints/:id", adminModule.ConsiderTheIssue)
+
+	admin.Post("/roles", adminModule.CreateRole)
+	admin.Get("/get-roles", adminModule.GetRoles)
+	admin.Get("/get-permission", adminModule.GetPermisison)
+	admin.Put("/updateroles/:id", adminModule.UpdateRoles)
 
 	// WebSocket route
 	app.Get("/admin/ws", websocket.New(adminModule.Handle))

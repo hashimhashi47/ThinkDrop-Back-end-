@@ -7,7 +7,6 @@ import (
 )
 
 // → Postgres implementation
-
 type AuthRespository struct {
 	DB    *gorm.DB
 	redis *redis.Client
@@ -23,4 +22,11 @@ func (r *AuthRespository) Insert(model interface{}) error {
 
 func (r *AuthRespository) FindAnything(model interface{}, Query, Any interface{}) error {
 	return r.DB.Where(Query, Any).First(model).Error
+}
+
+func (r *AuthRespository) FindAnythingProload(model interface{}, Query, Any interface{}) error {
+	return r.DB.
+		Preload("Permissions").
+		Where(Query, Any).
+		First(model).Error
 }

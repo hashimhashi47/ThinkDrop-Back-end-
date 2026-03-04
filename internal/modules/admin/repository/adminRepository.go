@@ -94,21 +94,18 @@ func (r *Repository) DeletePostWithRelations(postID uint) error {
 
 	var post Domain.Post
 
-	// Find post
 	if err := tx.First(&post, postID).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Clear many2many relation (join table)
 	if err := tx.Model(&post).
 		Association("SubInterests").
 		Clear(); err != nil {
 		tx.Rollback()
 		return err
 	}
-
-	// Delete post permanently
+	
 	if err := tx.Unscoped().
 		Delete(&post).Error; err != nil {
 		tx.Rollback()
@@ -117,3 +114,37 @@ func (r *Repository) DeletePostWithRelations(postID uint) error {
 
 	return tx.Commit().Error
 }
+
+func (r *Repository) FindPreload(model interface{}, preload string) error {
+	return r.DB.Preload(preload).Order("created_at DESC").Find(model).Error
+}
+
+
+func (r *Repository) ReplaceRolePermissions(roleID uint, permissionIDs []uint) error {
+	var role domain.Role
+
+	if err := r.DB.First(&role, roleID).Error; err != nil {
+		return err
+	}
+
+	var permissions []domain.Permission
+
+	if len(permissionIDs) > 0 {
+		if err := r.DB.
+			Where("id IN ?", permissionIDs).
+			Find(&permissions).Error; err != nil {
+			return err
+		}
+	}
+
+	if err := r.DB.
+		Model(&role).
+		Association("Permissions").
+		Replace(&permissions); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+

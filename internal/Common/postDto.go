@@ -45,3 +45,11 @@ type CreatePostRequest struct {
 	Content     string `json:"content" validate:"required"`
 	InterestIDs []uint `json:"intrestid" validate:"required,min=1"`
 }
+
+type LoginResponse struct {
+	Email       string
+	Name        string
+	AccessToken string
+	Role        string
+	Permissions interface{}
+}

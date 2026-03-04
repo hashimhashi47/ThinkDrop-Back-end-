@@ -4,8 +4,19 @@ import "errors"
 
 // role
 const (
-	User  = "user"
-	Admin = "admin"
+	User           = "user"
+	Admin          = "admin"
+	RoleSuperAdmin = "superadmin"
+	RoleManager    = "manager"
+	RoleSupervisor = "supervisor"
+
+	RoleModerator = "moderator"
+	RoleStaff     = "staff"
+	RoleCoStaff   = "costaff"
+	RoleSupport   = "support"
+
+	RoleAccountant = "accountant"
+	RoleAuditor    = "auditor"
 )
 
 const (
@@ -29,7 +40,6 @@ const (
 	ReportTechnical ReportType = "technical"
 	ReportOther     ReportType = "other"
 )
-
 
 // WalletStatus
 const (
